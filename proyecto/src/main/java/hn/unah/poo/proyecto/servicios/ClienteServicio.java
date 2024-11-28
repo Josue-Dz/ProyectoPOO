@@ -28,16 +28,11 @@ public class ClienteServicio {
 
         if(nvoCliente.getDirecciones() == null){
             return "Información incompleta. Para poder agregar este cliente necesita agregar al menos una dirección";
+        }else if(nvoCliente.getDirecciones().size()>=2){
+            return "El cliente a agregar no puede tener más de dos direcciones. Por favor intentelo nuevamente.";
         }
 
-        List<DireccionesDTO> listaDireccionesDTO = nvoClienteDTO.getDireccionesDTO();
         this.clienteRepositorio.save(nvoCliente);
-        //List<Direcciones> listaDirecciones = new ArrayList<>();
-        
-         for (DireccionesDTO direccionDTO : listaDireccionesDTO) {
-            //Direcciones direccion = SingletonModelMapper.getModelMapperInstance().map(direccionDTO, Direcciones.class);
-            agregarDireccion(nvoCliente.getDni(), direccionDTO);
-        }
         return "El cliente " + nvoClienteDTO.getNombre() + " ha sido agregado exitosamente.";
     }
 

@@ -1,6 +1,6 @@
 use prestamos;
 
-create table cliente(
+create table clientes(
 	dni varchar(18),
     nombre varchar(30),
     apellido varchar(30),
@@ -10,7 +10,7 @@ create table cliente(
     primary key(dni)
     );
     
-create table direccion(
+create table direcciones(
 	idDireccion int auto_increment primary key,
 	pais varchar(50),
     departamento varchar(50),
@@ -49,4 +49,7 @@ create table amortizacion(
     primary key(idPrestamo, numeroCuota),
     foreign key(idPrestamo) references prestamos(idPrestamo)
 	);
+    
+select *from clientes;
+select *from direcciones;
     
