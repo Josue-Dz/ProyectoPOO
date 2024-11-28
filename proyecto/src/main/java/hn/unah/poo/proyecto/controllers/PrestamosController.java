@@ -22,7 +22,6 @@ public class PrestamosController {
     @PostMapping("/crear/prestamo/{dni}")
     public String crearPrestamo(@PathVariable String dni, @RequestBody PrestamosDTO nvoPrestamosDTO) {
         return prestamosServicio.crearPrestamo(dni, nvoPrestamosDTO);
-    }
-    
+    }   
 
 }

@@ -22,6 +22,7 @@ public class PrestamoServicio {
     @Autowired
     private ClienteRepositorio clienteRepositorio;
 
+    //
     public String crearPrestamo(String dni, PrestamosDTO nvoPrestamosDTO){
         if(!this.clienteRepositorio.existsById(dni)){
             return "No es posible crear el prestamo ya que la persona con DNI: " + dni + " no existe";
@@ -35,6 +36,7 @@ public class PrestamoServicio {
         return "";
     }
 
+    //Asocia un prestamo a un cliente
     private boolean asociarPrestamos(String dni, Prestamos prestamoBD){
         Cliente cliente = this.clienteRepositorio.findById(dni).get();
         prestamoBD.getClientes().add(cliente);
