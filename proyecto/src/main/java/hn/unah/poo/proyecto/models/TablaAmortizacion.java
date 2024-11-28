@@ -41,6 +41,6 @@ public class TablaAmortizacion {
     @ManyToOne
     @JoinColumn(name = "idprestamo", referencedColumnName= "idprestamo")
     @JsonIgnore
-    private Prestamo prestamos;
+    private Prestamos prestamos;
     
 }

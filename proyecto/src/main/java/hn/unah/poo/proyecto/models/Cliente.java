@@ -42,7 +42,7 @@ private List<Direcciones> direcciones;
 
 @ManyToMany
 @JoinTable(name = "cliente_prestamos", 
-           joinColumns = @JoinColumn(name = "dni"),
-           inverseJoinColumns = @JoinColumn(name = "idPrestamo"))
-private Set<Prestamo> prestamos;
+           joinColumns = @JoinColumn(name = "id"),
+           inverseJoinColumns = @JoinColumn(name = "idprestamo"))
+private Set<Prestamos> prestamos;
 }

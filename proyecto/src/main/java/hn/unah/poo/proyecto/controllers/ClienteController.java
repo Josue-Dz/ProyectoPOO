@@ -2,6 +2,11 @@ package hn.unah.poo.proyecto.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import hn.unah.poo.proyecto.dtos.ClienteDTO;
+import hn.unah.poo.proyecto.servicios.ClienteServicio;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -9,12 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
+    
+    @Autowired
+    private ClienteServicio clienteServicio;
 
     @PostMapping("/crear/nuevo")
-    public String crearNuevoCliente(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return entity;
+    public String crearNuevoCliente(@RequestBody ClienteDTO nvoClienteDTO) {
+        return clienteServicio.crearCliente(nvoClienteDTO);
     }
     
 }
