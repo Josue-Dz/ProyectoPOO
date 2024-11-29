@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hn.unah.poo.proyecto.dtos.ClienteDTO;
 import hn.unah.poo.proyecto.dtos.DireccionesDTO;
 import hn.unah.poo.proyecto.servicios.ClienteServicio;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class ClienteController {
     @Autowired
     private ClienteServicio clienteServicio;
 
+    @Operation(summary = "Permite crear un nuevo registro para un cliente", description = "Crea un cliente puede recibir un JSON con la información completa")
     @PostMapping("/crear/nuevo")
     public String crearNuevoCliente(@RequestBody ClienteDTO nvoClienteDTO) {
         return clienteServicio.crearCliente(nvoClienteDTO);

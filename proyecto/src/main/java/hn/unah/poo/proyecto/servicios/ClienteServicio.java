@@ -45,6 +45,7 @@ public class ClienteServicio {
             this.direccionesRepositorio.save(direccion);
         }
 
+        
         this.clienteRepositorio.save(nvoCliente);
         return "El cliente " + nvoClienteDTO.getNombre() + " ha sido agregado exitosamente.";
     }

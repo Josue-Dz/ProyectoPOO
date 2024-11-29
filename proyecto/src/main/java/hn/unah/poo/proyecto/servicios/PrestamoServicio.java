@@ -57,16 +57,22 @@ public class PrestamoServicio {
 
         Prestamos prestamoBD = SingletonModelMapper.getModelMapperInstance().map(nvoPrestamosDTO, Prestamos.class);
 
-        if(asociarPrestamoCliente(dni, prestamoBD)){
-            return "Prestamo agregado exitosamente";
-        }
-        return "";
+        return asociarPrestamoCliente(dni, prestamoBD);
     }
 
     //Asocia un prestamo a un cliente
-    private boolean asociarPrestamoCliente(String dni, Prestamos prestamoBD){
+    private String asociarPrestamoCliente(String dni, Prestamos prestamoBD){
 
         Cliente cliente = this.clienteRepositorio.findById(dni).get();
+
+        // Calcular el nivel de endeudamiento
+        double totalEgresos = obtenerTotalDeEgresos(cliente);
+        double sueldo = cliente.getSueldo();
+        double nivelEndeudamiento = totalEgresos / sueldo;
+
+        if (nivelEndeudamiento > 0.40) {
+            return "El nivel de endeudamiento del cliente con DNI " + dni + " es superior al 40%. No se puede crear el préstamo.";
+        }
 
         prestamoBD.getClientes().add(cliente);
 
@@ -75,7 +81,7 @@ public class PrestamoServicio {
 
         this.prestamosRepositorio.save(prestamoBD);
 
-        return true;
+        return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
     }
 
      /**
@@ -197,4 +203,10 @@ public class PrestamoServicio {
         }
     }
 
+    public String obtenerSaldoPendiente(String dni, int idprestamo){
+        return "";
+    }
+    public String pagarCuota(String dni, int idprestamo){
+        return "";
+    }
 }
