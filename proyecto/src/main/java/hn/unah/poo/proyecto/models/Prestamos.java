@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+import hn.unah.poo.proyecto.enumeration.TipoPrestamo;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +44,7 @@ public class Prestamos {
     private char estado;
 
    @Column(name = "tipo_prestamo")
-    private char tipoPrestamo;
+    private TipoPrestamo tipoPrestamo;
 
     @ManyToMany(mappedBy= "prestamos", cascade = CascadeType.ALL)
     private Set<Cliente> clientes = new HashSet<>();

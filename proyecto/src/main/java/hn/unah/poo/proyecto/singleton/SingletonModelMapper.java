@@ -1,4 +1,4 @@
-package hn.unah.poo.singleton;
+package hn.unah.poo.proyecto.singleton;
 
 import org.modelmapper.ModelMapper;
 

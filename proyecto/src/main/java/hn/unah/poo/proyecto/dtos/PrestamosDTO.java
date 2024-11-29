@@ -1,5 +1,6 @@
 package hn.unah.poo.proyecto.dtos;
 
+import hn.unah.poo.proyecto.enumeration.TipoPrestamo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,6 @@ public class PrestamosDTO {
 
     private char estado;
 
-    private char tipoPrestamo;
+    private TipoPrestamo tipoPrestamo;
 
 }

@@ -33,7 +33,7 @@ public class TablaAmortizacion {
 
     private double saldo;
 
-    private String estado;
+    private char estado;
 
     @Column(name = "fechavencimiento")
     private  LocalDate fechaVencimiento;
