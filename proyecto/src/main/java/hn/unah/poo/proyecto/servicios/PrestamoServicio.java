@@ -42,7 +42,7 @@ public class PrestamoServicio {
     //
     public String crearPrestamo(String dni, PrestamosDTO nvoPrestamosDTO){
         if(!this.clienteRepositorio.existsById(dni)){
-            return "No es posible crear el prestamo ya que la persona con DNI: " + dni + " no existe";
+            return "No es posible crear el prestamo ya que el cliente con DNI: " + dni + " no existe";
         }
 
         if (nvoPrestamosDTO.getPlazo() < 1) {
@@ -54,8 +54,10 @@ public class PrestamoServicio {
         double cuota = obtenerCuota(nvoPrestamosDTO.getMonto(), tasaDeInteres, nvoPrestamosDTO.getPlazo());
         nvoPrestamosDTO.setTasaInteres(tasaDeInteres);
         nvoPrestamosDTO.setCuota(cuota);
+        nvoPrestamosDTO.setEstado('P');
 
         Prestamos prestamoBD = SingletonModelMapper.getModelMapperInstance().map(nvoPrestamosDTO, Prestamos.class);
+        
 
         return asociarPrestamoCliente(dni, prestamoBD);
     }
@@ -74,6 +76,9 @@ public class PrestamoServicio {
             return "El nivel de endeudamiento del cliente con DNI " + dni + " es superior al 40%. No se puede crear el préstamo.";
         }
 
+        //prestamoBD.setEstado('P');
+        // Crear la tabla de amortización para el préstamo
+        crearTablaAmortizacion(prestamoBD, prestamoBD.getCuota(), prestamoBD.getTasaInteres());
         prestamoBD.getClientes().add(cliente);
 
         cliente.getPrestamos().add(prestamoBD);
@@ -138,8 +143,8 @@ public class PrestamoServicio {
         return totalEgresos;
     }
 
-    private void crearTablaAmortizacion(Prestamos prestamo, double cuota, double tasaDeInteres) {
-        double saldo = prestamo.getMonto(); // Saldo inicial es el monto del préstamo
+    private void crearTablaAmortizacion(Prestamos prestamoBD, double cuota, double tasaDeInteres) {
+        double saldo = prestamoBD.getMonto(); // Saldo inicial es el monto del préstamo
 
         LocalDate fechaVencimiento = LocalDate.now(); // Obtener la fecha actual del sistema
 
@@ -150,9 +155,9 @@ public class PrestamoServicio {
         TablaAmortizacionId idTablaAmortizacion = new TablaAmortizacionId();
 
         // Asociar el préstamo
-        tablaAmortizacion.setPrestamos(prestamo);
+        tablaAmortizacion.setPrestamos(prestamoBD);
 
-        idTablaAmortizacion.setIdPrestamo(prestamo.getIdPrestamo()); // Asignar el ID del préstamo
+        idTablaAmortizacion.setIdPrestamo(prestamoBD.getIdPrestamo()); // Asignar el ID del préstamo
         idTablaAmortizacion.setNumeroCuota(0); // Las cuotas empiezan desde 1, no 0
 
         tablaAmortizacion.setId(idTablaAmortizacion); // Asignar la clave primaria compuesta
@@ -164,9 +169,9 @@ public class PrestamoServicio {
         tablaAmortizacion.setFechaVencimiento(fechaVencimiento);
 
         // Guardar cada cuota en la base de datos (presumiblemente con un repositorio)
-        tablaAmortizacionRepositorio.save(tablaAmortizacion);
+        this.tablaAmortizacionRepositorio.save(tablaAmortizacion);
 
-        for (int i = 0; i < prestamo.getPlazo() * 12; i++) {
+        for (int i = 0; i < prestamoBD.getPlazo() * 12; i++) {
             // Calcular el interés para la cuota actual
             double interes = (tasaDeInteres / 100) / 12 * saldo;
 
@@ -180,11 +185,11 @@ public class PrestamoServicio {
             tablaAmortizacion = new TablaAmortizacion();
 
             // Asociar el préstamo
-            tablaAmortizacion.setPrestamos(prestamo);
+            tablaAmortizacion.setPrestamos(prestamoBD);
 
             // Asignar correctamente el número de cuota en la clave primaria compuesta
             idTablaAmortizacion = new TablaAmortizacionId();
-            idTablaAmortizacion.setIdPrestamo(prestamo.getIdPrestamo()); // Asignar el ID del préstamo
+            idTablaAmortizacion.setIdPrestamo(prestamoBD.getIdPrestamo()); // Asignar el ID del préstamo
             idTablaAmortizacion.setNumeroCuota(i + 1); // Las cuotas empiezan desde 1, no 0
 
             tablaAmortizacion.setId(idTablaAmortizacion); // Asignar la clave primaria compuesta

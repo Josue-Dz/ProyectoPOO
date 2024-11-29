@@ -52,4 +52,7 @@ create table amortizacion(
     
 select *from clientes;
 select *from direcciones;
+select *from prestamos;
+select *from amortizacion;
+select *from cliente_prestamos;
     

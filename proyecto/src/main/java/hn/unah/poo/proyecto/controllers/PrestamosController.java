@@ -19,7 +19,7 @@ public class PrestamosController {
     @Autowired
     private PrestamoServicio prestamosServicio;
 
-    @PostMapping("/crear/prestamo/{dni}")
+    @PostMapping("/crear/{dni}")
     public String crearPrestamo(@PathVariable String dni, @RequestBody PrestamosDTO nvoPrestamosDTO) {
         return prestamosServicio.crearPrestamo(dni, nvoPrestamosDTO);
     }   
