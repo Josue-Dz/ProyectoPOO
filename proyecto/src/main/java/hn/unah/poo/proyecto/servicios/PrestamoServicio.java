@@ -1,7 +1,5 @@
 package hn.unah.poo.proyecto.servicios;
 
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,10 +36,16 @@ public class PrestamoServicio {
 
     //Asocia un prestamo a un cliente
     private boolean asociarPrestamos(String dni, Prestamos prestamoBD){
+
         Cliente cliente = this.clienteRepositorio.findById(dni).get();
+
         prestamoBD.getClientes().add(cliente);
+
         cliente.getPrestamos().add(prestamoBD);
         this.clienteRepositorio.save(cliente);
+
+        this.prestamosRepositorio.save(prestamoBD);
+
         return true;
     }
 }

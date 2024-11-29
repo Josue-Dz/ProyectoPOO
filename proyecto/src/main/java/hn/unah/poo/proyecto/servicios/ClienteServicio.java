@@ -1,12 +1,18 @@
 package hn.unah.poo.proyecto.servicios;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import hn.unah.poo.proyecto.dtos.ClienteDTO;
 import hn.unah.poo.proyecto.dtos.DireccionesDTO;
+import hn.unah.poo.proyecto.dtos.PrestamosDTO;
 import hn.unah.poo.proyecto.models.Cliente;
 import hn.unah.poo.proyecto.models.Direcciones;
+import hn.unah.poo.proyecto.models.Prestamos;
 import hn.unah.poo.proyecto.repositories.ClienteRepositorio;
 import hn.unah.poo.proyecto.repositories.DireccionesRepositorio;
 import hn.unah.poo.singleton.SingletonModelMapper;
@@ -46,6 +52,10 @@ public class ClienteServicio {
 
     public String agregarDireccion(String dni, DireccionesDTO direccionDTO){
 
+        if(direccionDTO.equals(null)){
+            return "No se han llenado los campos de la direccion";
+        }
+
         if (this.clienteRepositorio.existsById(dni) && !(this.clienteRepositorio.findById(dni).get().getDirecciones().size()<2)){
             return "Este cliente ya tiene dos direcciones asignadas, no puede agregar más!";
         }
@@ -75,13 +85,59 @@ public class ClienteServicio {
         Cliente cliente = this.clienteRepositorio.findById(dni).get();
         ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class);
 
-        for (Direcciones direccion : cliente.getDirecciones()) {
-            DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
-            clienteDTO.getDireccionesDTO().add(direccionDTO);
+        clienteDTO.setDireccionesDTO(new ArrayList<>());
+        if (cliente.getDirecciones() != null){
+            for (Direcciones direccion : cliente.getDirecciones()) {
+                DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
+                clienteDTO.getDireccionesDTO().add(direccionDTO);
+            }
+        }
+
+        clienteDTO.setPrestamosDTO(new HashSet<>());
+        if (cliente.getPrestamos() != null){
+            for(Prestamos prestamo : cliente.getPrestamos()){
+                PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+                clienteDTO.getPrestamosDTO().add(prestamoDTO);
+            }
         }
         
+
         return clienteDTO;
     }
-    
 
+
+    public List<ClienteDTO> obtenerTodos(){
+
+        List<Cliente> listaClientes = this.clienteRepositorio.findAll();
+        List<ClienteDTO> listaClientesDTO = new ArrayList<>();
+
+        for (Cliente cliente : listaClientes) {
+            ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class);
+            
+            clienteDTO.setDireccionesDTO(new ArrayList<>());
+            if(cliente.getDirecciones() != null){
+                for (Direcciones direccion : cliente.getDirecciones()) {
+                    DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
+                    clienteDTO.getDireccionesDTO().add(direccionDTO);
+                }
+            
+            }
+
+            clienteDTO.setPrestamosDTO(new HashSet<>());
+            if(cliente.getPrestamos() != null){
+                for(Prestamos prestamo: cliente.getPrestamos()){
+                    PrestamosDTO prestamosDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+                    clienteDTO.getPrestamosDTO().add(prestamosDTO);
+                }
+            }
+            
+            
+            listaClientesDTO.add(clienteDTO);
+        }
+
+        return listaClientesDTO;
+
+    }
+
+    
 }

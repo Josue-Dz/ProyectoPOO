@@ -29,7 +29,7 @@ public class Prestamos {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="idPrestamo")
+    @Column(name="idprestamo")
     private int idPrestamo;
 
     private double monto;
