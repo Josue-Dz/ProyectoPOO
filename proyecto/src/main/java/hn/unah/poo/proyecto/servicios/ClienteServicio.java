@@ -39,6 +39,7 @@ public class ClienteServicio {
         }else if(nvoCliente.getDirecciones().size()>=2){
             return "El cliente a agregar no puede tener más de dos direcciones. Por favor intentelo nuevamente.";
         }
+        
 
         for (Direcciones direccion : nvoCliente.getDirecciones()) {
             direccion.setCliente(nvoCliente);
@@ -53,7 +54,7 @@ public class ClienteServicio {
 
     public String agregarDireccion(String dni, DireccionesDTO direccionDTO){
 
-        if(direccionDTO.equals(null)){
+        if(direccionDTO == null){
             return "No se han llenado los campos de la direccion";
         }
 
@@ -137,8 +138,5 @@ public class ClienteServicio {
         }
 
         return listaClientesDTO;
-
-    }
-
-    
+    }    
 }

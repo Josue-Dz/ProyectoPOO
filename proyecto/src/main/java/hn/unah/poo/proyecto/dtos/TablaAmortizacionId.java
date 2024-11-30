@@ -36,9 +36,7 @@ public class TablaAmortizacionId implements Serializable{
         TablaAmortizacionId other = (TablaAmortizacionId) obj;
         if (idPrestamo != other.idPrestamo)
             return false;
-        if (numeroCuota != other.numeroCuota)
-            return false;
-        return true;
+        return numeroCuota == other.numeroCuota;
     }
 
     @Column(name = "idprestamo", insertable = false, updatable = false)

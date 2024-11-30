@@ -1,4 +1,4 @@
-package hn.unah.poo.proyecto.servicios;
+ package hn.unah.poo.proyecto.servicios;
 
 
 import java.time.LocalDate;
@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import hn.unah.poo.proyecto.dtos.PrestamosDTO;
 import hn.unah.poo.proyecto.dtos.TablaAmortizacionId;
 import hn.unah.poo.proyecto.enumeration.TipoPrestamo;
+import hn.unah.poo.proyecto.models.Cliente;
+import hn.unah.poo.proyecto.models.Prestamos;
+import hn.unah.poo.proyecto.models.TablaAmortizacion;
 import hn.unah.poo.proyecto.repositories.ClienteRepositorio;
 import hn.unah.poo.proyecto.repositories.PrestamosRepositorio;
 import hn.unah.poo.proyecto.repositories.TablaAmortizacionRepositorio;
 import hn.unah.poo.proyecto.singleton.SingletonModelMapper;
-import hn.unah.poo.proyecto.models.Cliente;
-import hn.unah.poo.proyecto.models.Prestamos;
-import hn.unah.poo.proyecto.models.TablaAmortizacion;
 
 @Service
 public class PrestamoServicio {
@@ -208,10 +208,43 @@ public class PrestamoServicio {
         }
     }
 
-    public String obtenerSaldoPendiente(String dni, int idprestamo){
-        return "";
-    }
+//    public String obtenerSaldoPendiente(String dni, int idprestamo){
+
+  //      try {
+
+            // Buscar si existe un cliente con el DNI proporcionado
+    //    Optional<Cliente> cliente = clienteRepositorio.findById(dni);
+      //  if (cliente == null) {
+        //    throw new NotFoundException();
+        //}
+
+           // Buscar el préstamo asociado al cliente y verificar que pertenece al cliente
+          // Prestamos prestamo = prestamosRepositorio.findById(idprestamo)
+           //.orElseThrow(() -> new NotFoundException());
+
+   //if (!prestamo.getClientes().getDni().equals(dni)) {
+     //  throw new IllegalAccessException("El préstamo con ID " + idprestamo + " no pertenece al cliente con DNI " + dni + ".");
+   //}
+
+   // Obtener el saldo pendiente de la tabla de amortización
+   //Double saldoPendiente = tablaAmortizacionRepositorio.obtenerSaldoPendiente(idprestamo);
+
+   //if (saldoPendiente == null || saldoPendiente == 0) {
+     //  return "El préstamo con ID " + idprestamo + " no tiene cuotas pendientes.";
+   //}
+
+   // Retornar el saldo pendiente formateado
+   //return "El saldo pendiente para el préstamo con ID " + idprestamo + " es de: " + saldoPendiente + " LPS.";
+
+//} catch (NotFoundException | IllegalAccessException e) {
+//}
+//return "Error: " + e.getMessage();
+
+        
     public String pagarCuota(String dni, int idprestamo){
         return "";
     }
-}
+
+    
+
+    }
