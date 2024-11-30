@@ -41,6 +41,12 @@ public class PrestamosController {
         return prestamosServicio.buscarPrestamoPorDni(dni);
     }
 
+    @GetMapping("/buscarPrestamoPorId/{idPrestamo}")
+    public Optional<PrestamosDTO> buscarPrestamoPorId(@PathVariable int idPrestamo) {
+        return prestamosServicio.buscarPrestamoPorId(idPrestamo);
+    }
+    
+
     @GetMapping("/asociar/prestamo/{dni}")
     public String asociarPrestamoACliente(@RequestParam String param) {
         return prestamosServicio.asociarPrestamoCliente(param, null);
