@@ -142,27 +142,48 @@ public class PrestamoServicio {
     }
 
 
+   
     /**
-     * 
+     * Obtiene el prestamo buscado por el id del Prestamo
      * @param idPrestamo
-     * @return
+     * @return Un objeto de tipo PrestamoDTO
      */
-    public PrestamosDTO buscarPrestamoPorId(int idPrestamo) {
-
-        // Verificar si el préstamo existe en la base de datos
-        if (!this.prestamosRepositorio.existsById(idPrestamo)) {
-            return null; // Retornar null si el préstamo no existe
+    public Optional<PrestamosDTO> buscarPrestamoPorId(int idPrestamo) {
+        try {
+            // Verificar si el préstamo existe
+            if (!this.prestamosRepositorio.existsById(idPrestamo)) {
+                return Optional.empty();
+            }
+    
+            // Obtener el objeto Prestamo desde el repositorio
+            Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).orElseThrow();
+    
+            // Mapear el objeto Prestamo a PrestamosDTO
+            PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+    
+            // Mapear los clientes asociados al préstamo (si existen)
+            if (prestamo.getClientes() != null) {
+                Set<ClienteDTO> clientesDTO = prestamo.getClientes().stream()
+                        .map(cliente -> SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class))
+                        .collect(Collectors.toSet());
+                prestamoDTO.setClientesDTO(clientesDTO);
+            }
+    
+            // Mapear la tabla de amortización asociada al préstamo (si existe)
+            if (prestamo.getTablaAmortizacion() != null) {
+                List<TablaAmortizacionDTO> tablaAmortizacionDTO = prestamo.getTablaAmortizacion().stream()
+                        .map(amortizacion -> SingletonModelMapper.getModelMapperInstance().map(amortizacion, TablaAmortizacionDTO.class))
+                        .collect(Collectors.toList());
+                prestamoDTO.setTablaAmortizacionDTO(tablaAmortizacionDTO);
+            }
+    
+            // Retornar el DTO con todos los datos
+            return Optional.of(prestamoDTO);
+    
+        } catch (Exception e) {
+            System.err.println("Error al buscar el préstamo por ID: " + e.getMessage());
+            return Optional.empty();
         }
-    
-        // Obtener el préstamo desde el repositorio
-        Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).get();
-    
-        // Mapear el préstamo a un DTO usando SingletonModelMapper
-        PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
-    
-        // Retornar el préstamo en formato DTO
-        return prestamoDTO;
-
     }
 
 
