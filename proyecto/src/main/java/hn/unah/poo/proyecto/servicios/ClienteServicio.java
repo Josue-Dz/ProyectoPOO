@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 import hn.unah.poo.proyecto.dtos.ClienteDTO;
 import hn.unah.poo.proyecto.dtos.DireccionesDTO;
 import hn.unah.poo.proyecto.dtos.PrestamosDTO;
+import hn.unah.poo.proyecto.dtos.TablaAmortizacionDTO;
 import hn.unah.poo.proyecto.models.Cliente;
 import hn.unah.poo.proyecto.models.Direcciones;
 import hn.unah.poo.proyecto.models.Prestamos;
+import hn.unah.poo.proyecto.models.TablaAmortizacion;
 import hn.unah.poo.proyecto.repositories.ClienteRepositorio;
 import hn.unah.poo.proyecto.repositories.DireccionesRepositorio;
 import hn.unah.poo.proyecto.singleton.SingletonModelMapper;
@@ -98,6 +100,12 @@ public class ClienteServicio {
         if (cliente.getPrestamos() != null){
             for(Prestamos prestamo : cliente.getPrestamos()){
                 PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+                prestamoDTO.setTablaAmortizacionDTO(new ArrayList<>());
+
+                for(TablaAmortizacion cuota : prestamo.getTablaAmortizacion()){
+                    TablaAmortizacionDTO cuotaDTO = SingletonModelMapper.getModelMapperInstance().map(cuota, TablaAmortizacionDTO.class);
+                    prestamoDTO.getTablaAmortizacionDTO().add(cuotaDTO);
+                }
                 clienteDTO.getPrestamosDTO().add(prestamoDTO);
             }
         }

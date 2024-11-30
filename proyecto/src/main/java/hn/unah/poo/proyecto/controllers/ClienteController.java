@@ -36,7 +36,7 @@ public class ClienteController {
         return clienteServicio.agregarDireccion(dni, direccionDTO);
     }
 
-    @GetMapping("/obtener/porId/{dni}")
+    @GetMapping("/obtener/cliente/{dni}")
     public ClienteDTO obtenerClientePorId(@PathVariable(name = "dni") String dni) {
         return clienteServicio.buscarClientePorId(dni);
     }

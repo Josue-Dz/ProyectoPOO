@@ -39,7 +39,7 @@ public class TablaAmortizacion {
     private  LocalDate fechaVencimiento;
 
     @ManyToOne
-    @JoinColumn(name = "idprestamo", referencedColumnName= "idprestamo")
+    @JoinColumn(name = "idprestamo", referencedColumnName= "idprestamo", insertable = false, updatable = false)
     @JsonIgnore
     private Prestamos prestamos;
     

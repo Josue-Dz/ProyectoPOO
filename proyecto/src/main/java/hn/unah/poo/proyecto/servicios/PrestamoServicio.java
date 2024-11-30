@@ -14,6 +14,7 @@ import hn.unah.poo.proyecto.repositories.ClienteRepositorio;
 import hn.unah.poo.proyecto.repositories.PrestamosRepositorio;
 import hn.unah.poo.proyecto.repositories.TablaAmortizacionRepositorio;
 import hn.unah.poo.proyecto.singleton.SingletonModelMapper;
+import jakarta.transaction.Transactional;
 import hn.unah.poo.proyecto.models.Cliente;
 import hn.unah.poo.proyecto.models.Prestamos;
 import hn.unah.poo.proyecto.models.TablaAmortizacion;
@@ -39,7 +40,8 @@ public class PrestamoServicio {
     @Value("${prestamo.tasa.vehicular}")
     private double tasaVehicular;
 
-    //
+
+    @Transactional
     public String crearPrestamo(String dni, PrestamosDTO nvoPrestamosDTO){
         if(!this.clienteRepositorio.existsById(dni)){
             return "No es posible crear el prestamo ya que el cliente con DNI: " + dni + " no existe";
@@ -62,7 +64,8 @@ public class PrestamoServicio {
         return asociarPrestamoCliente(dni, prestamoBD);
     }
 
-    //Asocia un prestamo a un cliente
+
+    
     private String asociarPrestamoCliente(String dni, Prestamos prestamoBD){
 
         Cliente cliente = this.clienteRepositorio.findById(dni).get();
@@ -78,13 +81,12 @@ public class PrestamoServicio {
 
         //prestamoBD.setEstado('P');
         // Crear la tabla de amortización para el préstamo
-        crearTablaAmortizacion(prestamoBD, prestamoBD.getCuota(), prestamoBD.getTasaInteres());
         prestamoBD.getClientes().add(cliente);
+        this.prestamosRepositorio.save(prestamoBD);
 
         cliente.getPrestamos().add(prestamoBD);
+        crearTablaAmortizacion(prestamoBD, prestamoBD.getCuota(), prestamoBD.getTasaInteres());
         this.clienteRepositorio.save(cliente);
-
-        this.prestamosRepositorio.save(prestamoBD);
 
         return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
     }
@@ -102,7 +104,7 @@ public class PrestamoServicio {
         double p = monto;
 
         // r es la tasa de interés mensual
-        double r = (tasaDeInteres / 12) / 100; // Dividir entre 100 para convertir a porcentaje mensual
+        double r = (tasaDeInteres / 12);
         // n es el número total de pagos
         int n = plazo * 12;  // Plazo en años convertido a meses
         // Calculamos la cuota usando la fórmula
@@ -110,6 +112,7 @@ public class PrestamoServicio {
 
         return cuota;
     }
+
 
     // Método para obtener la tasa según el tipo de préstamo
     private double obtenerTasaInteres(TipoPrestamo tipoPrestamo) {
@@ -173,13 +176,13 @@ public class PrestamoServicio {
 
         for (int i = 0; i < prestamoBD.getPlazo() * 12; i++) {
             // Calcular el interés para la cuota actual
-            double interes = (tasaDeInteres / 100) / 12 * saldo;
+            double interes = (tasaDeInteres/ 12 )* saldo;
 
             // Calcular el capital de la cuota
             double capital = cuota - interes;
 
             // Calcular el saldo después de la cuota
-            saldo = saldo - capital;
+            saldo = saldo-capital;
 
             // Crear y agregar el registro de la cuota a la tabla de amortización
             tablaAmortizacion = new TablaAmortizacion();
@@ -201,7 +204,7 @@ public class PrestamoServicio {
             tablaAmortizacion.setFechaVencimiento(fechaVencimiento);
 
             // Guardar cada cuota en la base de datos (presumiblemente con un repositorio)
-            tablaAmortizacionRepositorio.save(tablaAmortizacion);
+            this.tablaAmortizacionRepositorio.save(tablaAmortizacion);
 
             // Incrementar la fecha para la siguiente cuota (un mes)
             fechaVencimiento = fechaVencimiento.plusMonths(1);
@@ -212,6 +215,30 @@ public class PrestamoServicio {
         return "";
     }
     public String pagarCuota(String dni, int idprestamo){
-        return "";
+        if (!this.clienteRepositorio.existsById(dni)){
+            return "El cliente con DNI: " + dni + " no existe!.";
+        }
+
+        Cliente cliente = this.clienteRepositorio.findById(dni).get();
+        if (!this.prestamosRepositorio.existsById(idprestamo)){
+            return "El cliente con DNI: " + dni + " no cuenta con dicho prestamo!.";
+        }
+
+        Prestamos prestamoBD = this.prestamosRepositorio.findById(idprestamo).get();
+       // TablaAmortizacion cuotaAntiguaPendiente = prestamoBD.getTablaAmortizacion().get(0);
+
+        for(TablaAmortizacion cuota : prestamoBD.getTablaAmortizacion()){
+            if(cuota.getEstado() == 'P'){
+                cuota.setEstado('A');
+                prestamoBD.getTablaAmortizacion().set(cuota.getId().getNumeroCuota(), cuota);
+                cuota.setPrestamos(prestamoBD);
+                break;
+            }
+
+        }
+
+        this.prestamosRepositorio.save(prestamoBD);
+
+        return "Se ha realizado el pago exitosamente!";
     }
 }

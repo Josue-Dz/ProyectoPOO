@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+
+
 
 
 @RestController
@@ -23,5 +26,10 @@ public class PrestamosController {
     public String crearPrestamo(@PathVariable String dni, @RequestBody PrestamosDTO nvoPrestamosDTO) {
         return prestamosServicio.crearPrestamo(dni, nvoPrestamosDTO);
     }   
+
+    @GetMapping("/pagar/cuota/{dni}/{idprestamo}")
+    public String pagarCuotaPrestamo(@PathVariable(name="dni") String dni, @PathVariable (name="idprestamo") int idPrestamo) {
+        return prestamosServicio.pagarCuota(dni, idPrestamo);
+    }
 
 }
