@@ -146,35 +146,31 @@ public class ClienteServicio {
      * 
      * @return
      */
-    public List<ClienteDTO> obtenerTodos(){
-
-        List<Cliente> listaClientes = this.clienteRepositorio.findAll();
+    public List<ClienteDTO> obtenerTodos() {
+        List<Cliente> listaClientes = clienteRepositorio.findAll();
         List<ClienteDTO> listaClientesDTO = new ArrayList<>();
 
         for (Cliente cliente : listaClientes) {
             ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class);
-            
             clienteDTO.setDireccionesDTO(new ArrayList<>());
-            if(cliente.getDirecciones() != null){
+
+            if (cliente.getDirecciones() != null) {
                 for (Direcciones direccion : cliente.getDirecciones()) {
                     DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
                     clienteDTO.getDireccionesDTO().add(direccionDTO);
                 }
-            
             }
 
             clienteDTO.setPrestamosDTO(new HashSet<>());
-            if(cliente.getPrestamos() != null){
-                for(Prestamos prestamo: cliente.getPrestamos()){
+            if (cliente.getPrestamos() != null) {
+                for (Prestamos prestamo : cliente.getPrestamos()) {
                     PrestamosDTO prestamosDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
                     clienteDTO.getPrestamosDTO().add(prestamosDTO);
                 }
             }
-            
-            
+
             listaClientesDTO.add(clienteDTO);
         }
 
         return listaClientesDTO;
-    }    
-}
+    }}
