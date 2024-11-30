@@ -72,37 +72,75 @@ public class PrestamoServicio {
         return asociarPrestamoCliente(dni, prestamoBD);
     }
 
-    /**
-     * 
-     * @param dni
-     * @return
-     */
-    public List<PrestamosDTO> buscarPrestamoPorDni(String dni){
-
-        // Validar si el cliente existe en la base de datos
-        if (!this.clienteRepositorio.existsById(dni)) {
-            return null ; 
-        }
-
-        // Obtener el cliente desde el repositorio
-        Cliente cliente = this.clienteRepositorio.findById(dni).get();
-
-        // Crear la lista de DTOs para los préstamos asociados al cliente
-        List<PrestamosDTO> prestamosDTOList = new ArrayList<>();
-
-        // Verificar si el cliente tiene préstamos asociados
-        if (cliente.getPrestamos() != null) {
-            for (Prestamos prestamo : cliente.getPrestamos()) {
-                // Mapear cada préstamo a un DTO usando SingletonModelMapper
-                PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
-                prestamosDTOList.add(prestamoDTO);
+    
+/**
+ * Busca todos los prestamos que tiene el cliente con el DNI asociado
+ * @param dni
+ * @return Una Lista o Set de los Prestamos del cliente con el DNI
+ */
+    public Optional<Set<PrestamosDTO>> buscarPrestamoPorDni(String dni) {
+        try {
+            // Verificar si existe el cliente por DNI
+            if (!this.clienteRepositorio.existsById(dni)) {
+                return Optional.of(new HashSet<>());
             }
+    
+            // Obtener el cliente encontrado
+            Cliente clienteEncontrado = this.clienteRepositorio.findById(dni).orElseThrow();
+    
+            // Mapear los préstamos a PrestamosDTO si existen
+            if (clienteEncontrado.getPrestamos() != null) {
+                Set<PrestamosDTO> prestamosDTO = clienteEncontrado.getPrestamos()
+                        .stream()
+                        .map(prestamo -> {
+                            // Mapear Prestamo a PrestamosDTO
+                            PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+    
+                            // Mapear la lista de TablaAmortizacion a TablaAmortizacionDTO
+                            List<TablaAmortizacionDTO> tablaAmortizacionDTO = prestamo.getTablaAmortizacion()
+                                    .stream()
+                                    .map(amortizacion -> SingletonModelMapper.getModelMapperInstance().map(amortizacion, TablaAmortizacionDTO.class))
+                                    .collect(Collectors.toList());
+    
+                            // Establecer la lista mapeada en el DTO
+                            prestamoDTO.setTablaAmortizacionDTO(tablaAmortizacionDTO);
+    
+                            // Mapear Cliente a ClienteDTO
+                            ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(clienteEncontrado, ClienteDTO.class);
+    
+                            // Mapear las direcciones a DireccionDTO
+                            List<DireccionesDTO> direccionesDTO = clienteEncontrado.getDirecciones()                                    
+                                    .stream()
+                                    .map(direccion -> SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class))
+                                    .collect(Collectors.toList());
+    
+                            // Asignar direcciones al ClienteDTO
+                            clienteDTO.setDireccionesDTO(direccionesDTO);
+    
+                            // Crear un Set<ClienteDTO> y agregar el ClienteDTO
+                            Set<ClienteDTO> clientesDTOSet = new HashSet<>();
+                            clientesDTOSet.add(clienteDTO);
+    
+                            // Asignar clientes al DTO del préstamo
+                            prestamoDTO.setClientesDTO(clientesDTOSet);
+    
+                            return prestamoDTO; // Retornar el DTO completo
+                        })
+                        .collect(Collectors.toSet());
+    
+                return Optional.of(prestamosDTO); // Devolver los préstamos mapeados
+            }
+    
+            // Si no hay préstamos, devolver un conjunto vacío
+            return Optional.of(new HashSet<>());
+    
+        } catch (Exception e) {
+            // Manejar la excepción con un registro (opcional) o personalización
+            System.err.println("Error al buscar préstamos por DNI: " + e.getMessage());
+            return Optional.of(new HashSet<>());
         }
-        
-        // Retornar la lista de préstamos en formato DTO
-        return prestamosDTOList;
-
     }
+
 
     /**
      * 
