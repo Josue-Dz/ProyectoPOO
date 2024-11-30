@@ -20,9 +20,6 @@ import hn.unah.poo.proyecto.repositories.PrestamosRepositorio;
 import hn.unah.poo.proyecto.repositories.TablaAmortizacionRepositorio;
 import hn.unah.poo.proyecto.singleton.SingletonModelMapper;
 import jakarta.transaction.Transactional;
-import hn.unah.poo.proyecto.models.Cliente;
-import hn.unah.poo.proyecto.models.Prestamos;
-import hn.unah.poo.proyecto.models.TablaAmortizacion;
 
 @Service
 public class PrestamoServicio {
@@ -319,32 +316,37 @@ public class PrestamoServicio {
     */
     public String obtenerSaldoPendiente(String dni, int idPrestamo){
 
-        if (!this.clienteRepositorio.existsById(dni)){
-            return "El cliente con DNI: " + dni + " no existe!.";
+        try {
+            if (!this.clienteRepositorio.existsById(dni)){
+                return "El cliente con DNI: " + dni + " no existe!.";
+            }
+    
+            Cliente cliente = this.clienteRepositorio.findById(dni).get();
+            Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).get();
+            double saldoPendiente = 0.0;
+            int cuotasPagadas = prestamo.getPlazo() * 12;
+            int cuotasPendientes = 0;
+            
+            if (!cliente.getPrestamos().contains(prestamo)){
+                return "El cliente con DNI:" + dni + " no cuenta con dicho prestamo!";
+            }
+    
+            for (TablaAmortizacion cuota : prestamo.getTablaAmortizacion()) {
+                if (cuota.getEstado() == 'P'){
+                    saldoPendiente =+ cuota.getSaldo();
+                    cuotasPagadas--;
+                }   
+            }
+    
+            cuotasPendientes = (prestamo.getPlazo()*12) - cuotasPagadas;
+    
+            return String.format("Pagado: %d cuota(s) \n"
+                                +"Pendiente: %d cuota(s)\n"
+                                +"Saldo Pendiete: %.2f", cuotasPagadas, cuotasPendientes, saldoPendiente);
+            
+        } catch (Exception e) {
+            return "No se pudo completar la acción " + e;
         }
-
-        Cliente cliente = this.clienteRepositorio.findById(dni).get();
-        Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).get();
-        double saldoPendiente = 0.0;
-        int cuotasPagadas = prestamo.getPlazo() * 12;
-        int cuotasPendientes = 0;
-        
-        if (!cliente.getPrestamos().contains(prestamo)){
-            return "El cliente con DNI:" + dni + " no cuenta con dicho prestamo!";
-        }
-
-        for (TablaAmortizacion cuota : prestamo.getTablaAmortizacion()) {
-            if (cuota.getEstado() == 'P'){
-                saldoPendiente =+ cuota.getSaldo();
-                cuotasPagadas--;
-            }   
-        }
-
-        cuotasPendientes = (prestamo.getPlazo()*12) - cuotasPagadas;
-
-        return String.format("Pagado: %d cuota(s) \n"
-                            +"Pendiente: %d cuota(s)\n"
-                            +"Saldo Pendiete: %.2f", cuotasPagadas, cuotasPendientes, saldoPendiente);
 
     }
 

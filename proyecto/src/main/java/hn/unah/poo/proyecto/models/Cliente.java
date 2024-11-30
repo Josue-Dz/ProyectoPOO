@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -35,6 +36,7 @@ private String telefono;
 
 private String correo;
 
+@Column(columnDefinition = "DECIMAL(14,2)")
 private double sueldo;
 
 @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)

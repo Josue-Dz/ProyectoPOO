@@ -32,13 +32,15 @@ public class Prestamos {
     @Column(name="idprestamo")
     private int idPrestamo;
 
+    @Column(columnDefinition = "DECIMAL(14,2)")
     private double monto;
 
     private int plazo;
 
-    @Column(name = "tasa_interes")
+    @Column(name = "tasa_interes", columnDefinition = "DECIMAL(14,2)")
     private double tasaInteres;
 
+    @Column(columnDefinition = "DECIMAL(14,2)")
     private double cuota;
 
     private char estado;

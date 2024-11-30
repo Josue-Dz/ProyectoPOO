@@ -27,10 +27,13 @@ public class TablaAmortizacion {
     @EmbeddedId
     private TablaAmortizacionId id;
 
+    @Column(columnDefinition = "DECIMAL(14,2)")
     private double interes;
 
+    @Column(columnDefinition = "DECIMAL(14,2)")
     private double capital;
 
+    @Column(columnDefinition = "DECIMAL(14,2)")
     private double saldo;
 
     private char estado;
