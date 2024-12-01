@@ -228,7 +228,7 @@ public class PrestamoServicio {
             crearTablaAmortizacion(prestamo, prestamo.getCuota(), prestamo.getTasaInteres());
             this.clienteRepositorio.save(cliente);
     
-            return "El cliente con DNI: " + cliente.getDni() + " ha sido asociado a un prestamo exitosamente!";
+            return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
         } catch (Exception e) {
             return "Ha ocurrido un error!\n " + e;
         }
@@ -278,10 +278,10 @@ public class PrestamoServicio {
             this.prestamosRepositorio.save(prestamo);
     
             cliente.getPrestamos().add(prestamo);
-            crearTablaAmortizacion(prestamo, prestamo.getCuota(), prestamo.getTasaInteres());
+            //crearTablaAmortizacion(prestamo, prestamo.getCuota(), prestamo.getTasaInteres());
             this.clienteRepositorio.save(cliente);
     
-            return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
+            return "El cliente con DNI: " + cliente.getDni() + " ha sido asociado a un prestamo exitosamente!";
         } catch (Exception e) {
             return "Ha ocurrido un error: \n" + e;
         }
@@ -525,11 +525,15 @@ public class PrestamoServicio {
                 }
     
                 if (cuota.getEstado() == 'A' && cuota.getId().getNumeroCuota() == prestamoBD.getPlazo()*12){
+                    cuota.setSaldo(0);
                     return String.format("Ya no existen cuotas a pagar para este prestamo!\n"
                                        + "El saldo del prestamo es de: %.2f", saldoPendiente);
                 }
             }
     
+            if(numeroCuota == prestamoBD.getPlazo()*12){
+                prestamoBD.setEstado('A');
+            }
             this.prestamosRepositorio.save(prestamoBD);
     
             return String.format("Se ha realizado con exito el pago de la cuota"

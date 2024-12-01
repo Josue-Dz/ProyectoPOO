@@ -17,6 +17,7 @@ import hn.unah.poo.proyecto.models.Prestamos;
 import hn.unah.poo.proyecto.models.TablaAmortizacion;
 import hn.unah.poo.proyecto.repositories.ClienteRepositorio;
 import hn.unah.poo.proyecto.repositories.DireccionesRepositorio;
+import hn.unah.poo.proyecto.repositories.PrestamosRepositorio;
 import hn.unah.poo.proyecto.singleton.SingletonModelMapper;
 
 @Service
@@ -123,6 +124,7 @@ public class ClienteServicio {
             }
         }
 
+        
         clienteDTO.setPrestamosDTO(new HashSet<>());
         if (cliente.getPrestamos() != null){
             for(Prestamos prestamo : cliente.getPrestamos()){
@@ -147,6 +149,7 @@ public class ClienteServicio {
      * @return
      */
     public List<ClienteDTO> obtenerTodos() {
+
         List<Cliente> listaClientes = clienteRepositorio.findAll();
         List<ClienteDTO> listaClientesDTO = new ArrayList<>();
 
@@ -173,4 +176,80 @@ public class ClienteServicio {
         }
 
         return listaClientesDTO;
-    }}
+    }
+
+/**
+ * 
+ * @param dni
+ * @return
+ */
+public String eliminarCliente(String dni) {
+    try {
+        if (!this.clienteRepositorio.existsById(dni)) {
+            return "El cliente con DNI: " + dni + " no existe. No se puede eliminar.";
+        }
+
+        Cliente cliente = this.clienteRepositorio.findById(dni).get();
+
+        // Verificar si el cliente tiene préstamos con saldo pendiente
+        for (Prestamos prestamo : cliente.getPrestamos()) {
+            if(prestamo.getEstado() == 'P'){
+                return "El cliente con DNI: " + dni + " no puede ser eliminado, posee prestamo(s) con saldo pendiente!";
+            }
+        }
+
+        // Si no hay saldo pendiente, proceder a eliminar el cliente
+        this.clienteRepositorio.delete(cliente);
+        return "El cliente con DNI: " + dni + " ha sido eliminado exitosamente.";
+    } catch (Exception e) {
+        return "No ha sido posible completar la acción. Verifique los datos!\n" + e;
+    }
+}
+
+/**
+ * 
+ * @param dni
+ * @param clienteDTO
+ * @return
+ */
+public String actualizarCliente(String dni, ClienteDTO clienteDTO) {
+    try {
+        if (!this.clienteRepositorio.existsById(dni)) {
+            return "El cliente con DNI: " + dni + " no existe. No se puede actualizar.";
+        }
+
+        Cliente clienteExistente = this.clienteRepositorio.findById(dni).get();
+
+        // Actualizar campos permitidos
+        if (clienteDTO.getCorreo() != null) {
+            clienteExistente.setCorreo(clienteDTO.getCorreo());
+        }
+        if (clienteDTO.getSueldo() != 0) {
+            clienteExistente.setSueldo(clienteDTO.getSueldo());
+        }
+        if (clienteDTO.getTelefono() != null) {
+            clienteExistente.setTelefono(clienteDTO.getTelefono());
+        }
+
+        // Actualizar direcciones
+        if (clienteDTO.getDireccionesDTO() != null) {
+            // Limpiar direcciones existentes
+            clienteExistente.getDirecciones().clear();
+
+            for (DireccionesDTO direccionDTO : clienteDTO.getDireccionesDTO()) {
+                Direcciones direccion = SingletonModelMapper.getModelMapperInstance().map(direccionDTO, Direcciones.class);
+                direccion.setCliente(clienteExistente);
+                clienteExistente.getDirecciones().add(direccion);
+            }
+        }
+
+        // Guardar cambios en el repositorio
+        this.clienteRepositorio.save(clienteExistente);
+        return "El cliente con DNI: " + dni + " ha sido actualizado exitosamente.";
+    } catch (Exception e) {
+        return "No ha sido posible completar la acción " + e;
+    }
+}
+
+
+}

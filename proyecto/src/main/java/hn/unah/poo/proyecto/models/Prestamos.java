@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import hn.unah.poo.proyecto.enumeration.TipoPrestamo;
 import hn.unah.poo.proyecto.enumeration.TipoPrestamoConverter;
 import jakarta.persistence.CascadeType;
@@ -39,6 +41,7 @@ public class Prestamos {
 
     private int plazo;
 
+    @Column(columnDefinition = "DECIMAL(14,2)")
     private double tasaInteres;
 
     @Column(columnDefinition = "DECIMAL(14,2)")
@@ -51,6 +54,7 @@ public class Prestamos {
     private TipoPrestamo tipoPrestamo;
 
     @ManyToMany(mappedBy= "prestamos", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Cliente> clientes = new HashSet<>();
 
     @OneToMany(mappedBy= "prestamos", cascade = CascadeType.ALL)
