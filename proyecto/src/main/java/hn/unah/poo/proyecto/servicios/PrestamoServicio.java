@@ -4,14 +4,13 @@
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 
 import hn.unah.poo.proyecto.dtos.ClienteDTO;
 import hn.unah.poo.proyecto.dtos.DireccionesDTO;
@@ -49,11 +48,19 @@ public class PrestamoServicio {
     private double tasaVehicular;
 
    /**
-     * Método para asociar un prestamo a un cliente
+     * Crea un nuevo préstamo para un cliente existente en la base de datos. 
+     * Este método realiza las siguientes operaciones:
+     * - Verifica que el cliente con el DNI proporcionado exista en la base de datos.
+     * - Valida que el plazo del préstamo no exceda el límite permitido (1 año).
+     * - Calcula la tasa de interés y la cuota del préstamo según el tipo y monto.
+     * - Establece el estado inicial del préstamo como pendiente ('P').
+     * - Asocia el préstamo al cliente y lo almacena en la base de datos.
      * @param dni
      * @param prestamoBD
-     * @return
+     * @return Un mensaje indicando si el préstamo fue creado exitosamente o una descripción del error
+     *         en caso de que no se haya podido realizar la operación.
      */
+
     @Transactional
     public String crearPrestamo(String dni, PrestamosDTO nvoPrestamosDTO){
         if(!this.clienteRepositorio.existsById(dni)){
@@ -78,10 +85,18 @@ public class PrestamoServicio {
 
     
 /**
- * Busca todos los prestamos que tiene el cliente con el DNI asociado
+ * Busca los préstamos asociados a un cliente dado su DNI.
+ * 
+ * Este método realiza las siguientes operaciones:
+ * - Verifica si el cliente con el DNI proporcionado existe en la base de datos.
+ * - Si el cliente existe, mapea todos sus préstamos a objetos `PrestamosDTO`.
+ * - Para cada préstamo, también mapea la tabla de amortización asociada (`TablaAmortizacionDTO`).
+ * - Mapea las direcciones del cliente a `DireccionesDTO` y los agrega al `ClienteDTO`.
  * @param dni
- * @return Una Lista o Set de los Prestamos del cliente con el DNI
+ * @return Un `Optional` que contiene un conjunto de objetos `PrestamosDTO` si el cliente tiene préstamos asociados.
+ *         Si el cliente no existe o no tiene préstamos, se devuelve un conjunto vacío.
  */
+
     public Optional<Set<PrestamosDTO>> buscarPrestamoPorDni(String dni) {
         try {
             // Verificar si existe el cliente por DNI
@@ -148,10 +163,19 @@ public class PrestamoServicio {
 
    
     /**
-     * Obtiene el prestamo buscado por el id del Prestamo
+     * Busca un préstamo por su ID y devuelve la información asociada en formato DTO.
+     * 
+     * Este método realiza las siguientes operaciones:
+     * - Verifica si el préstamo con el ID proporcionado existe en la base de datos.
+     * - Si existe, mapea la entidad `Prestamos` a un objeto `PrestamosDTO`.
+     * - Mapea los clientes asociados al préstamo en un conjunto de `ClienteDTO`.
+     * - Mapea la tabla de amortización asociada al préstamo en una lista de `TablaAmortizacionDTO`.
+     * 
      * @param idPrestamo
-     * @return Un objeto de tipo PrestamoDTO
+     * @return Un `Optional` que contiene un objeto `PrestamosDTO` con toda la información del préstamo, o `Optional.empty()`
+     *         si el préstamo no existe o si ocurre un error durante la operación.
      */
+
     public Optional<PrestamosDTO> buscarPrestamoPorId(int idPrestamo) {
         try {
             // Verificar si el préstamo existe
@@ -192,11 +216,20 @@ public class PrestamoServicio {
 
 
     /**
-     * Método que permite asociar un prestamo a un cliente existente
+     * Asocia un préstamo a un cliente y realiza las validaciones necesarias.
+     * 
+     * Este método realiza las siguientes operaciones:
+     * - Verifica si el nivel de endeudamiento del cliente es superior al 40%.
+     * - Si el nivel de endeudamiento es mayor al límite, no se crea el préstamo.
+     * - Si el nivel de endeudamiento es aceptable, asocia el préstamo al cliente.
+     * - Calcula la tabla de amortización del préstamo y la guarda.
+     * - Almacena el préstamo y el cliente en la base de datos.
      * @param dni
      * @param prestamoBD
-     * @return una cadena de texto con la información referente a la correcta o incorrecta asociación del prestamo al cliente
+     * @return Un mensaje indicando si el préstamo fue asociado exitosamente o una descripción del error,
+     *         en caso de que el nivel de endeudamiento sea superior al 40% o de otro error durante el proceso.
      */
+
     private String asociarPrestamoCliente(String dni, PrestamosDTO prestamoDTO){
 
         try {
@@ -239,9 +272,10 @@ public class PrestamoServicio {
      * Método que permite asociar un cliente ya existente a un prestamo también existente
      * @param dni
      * @param idPrestamo
-     * @return una cadena de texto con la información si fue posible o no realizar la asociación del cliente al prestamo
+     * @return Una cadena de texto con la información si fue posible o no realizar la asociación del cliente al prestamo
      * de manera exitosa
      */
+
     public String asociarPrestamoACliente(String dni, int idPrestamo){
 
         try {
@@ -294,8 +328,9 @@ public class PrestamoServicio {
      * @param monto
      * @param tasaDeInteres
      * @param plazo
-     * @return el valor de la cuota a pagar
+     * @return El valor de la cuota a pagar
      */
+
     private double obtenerCuota(double monto, double tasaDeInteres, int plazo) {
         // P es el monto del préstamo
         double p = monto;
@@ -315,35 +350,41 @@ public class PrestamoServicio {
     /**
      * Método para obtener la tasa de interés según el tipo de prestamo
      * @param tipoPrestamo
-     * @return el valor de la tasa de interés
+     * @return * @return La tasa de interés correspondiente al tipo de préstamo.
+     * @throws IllegalArgumentException Si el tipo de préstamo no es válido.
      */
+
     private double obtenerTasaInteres(String tipoPrestamo) {
 
           switch (tipoPrestamo) {
-            case "V":
-
+            case "V" -> {
                 return tasaVehicular;
+            }
             
-            case "P":
-
+            case "P" -> {
                 return tasaPersonal;
+            }
 
-            case "H":
-
+            case "H" -> {
                 return tasaHipotecario;
+            }
 
-            default:
-                throw new IllegalArgumentException("Tasa de interés no disponible para el tipo de préstamo " + tipoPrestamo);
+            default -> throw new IllegalArgumentException("Tasa de interés no disponible para el tipo de préstamo " + tipoPrestamo);
         }
         
     }
 
     
     /**
-     * Permite obtener los Egresos totales de un cliente en particular
+     * Calcula el total de los egresos mensuales de un cliente basado en sus préstamos pendientes.
+
+     * Este método recorre todos los préstamos asociados al cliente y suma la cuota de cada préstamo cuyo
+     * estado sea "P" (pendiente). El total de estas cuotas representa los egresos mensuales del cliente
+     * debido a los préstamos activos.
      * @param cliente
      * @return double con el cálculo de los egresos totales
      */
+
     private double obtenerTotalDeEgresos(Cliente cliente) {
         // Inicializar la variable totalEgresos en 0
         double totalEgresos = 0;
@@ -361,13 +402,19 @@ public class PrestamoServicio {
     }
 
     /**
-     * Crea la tabla amortización donde se muestra la información del plan de pago del prestamo 
-     * con el dato numerico de las pagadas y por pagar
+     * Crea la tabla de amortización para un préstamo dado, calculando las cuotas, el interés y el capital de cada una.
+     * 
+     * Este método realiza las siguientes operaciones:
+     * - Inicializa el saldo del préstamo con el monto total.
+     * - Calcula y guarda las cuotas del préstamo, junto con los intereses y el capital correspondiente.
+     * - Establece las fechas de vencimiento de las cuotas, comenzando desde la fecha actual y aumentando mensualmente.
+     * - Para cada cuota, calcula el interés correspondiente y la parte de capital, y guarda cada cuota en la base de datos.
      * @param prestamoBD
      * @param cuota
      * @param tasaDeInteres
-     * @return una cadena de texto informativa acerca de la correcta o incorrecta creación de la misma
+     * @return Un mensaje indicando el éxito o el error en el proceso de creación de la tabla de amortización.
      */
+
     private String crearTablaAmortizacion(Prestamos prestamoBD, double cuota, double tasaDeInteres) {
         try {
             double saldo = prestamoBD.getMonto(); // Saldo inicial es el monto del préstamo
@@ -442,10 +489,16 @@ public class PrestamoServicio {
 
 
     /**
-     * Método que permite obtener el saldo pendiente de un prestamo asociado a un cliente
+     * * Obtiene el saldo pendiente de un préstamo asociado a un cliente, así como el número de cuotas pagadas y pendientes.
+     * Este método realiza las siguientes operaciones:
+     * - Verifica si el cliente con el DNI proporcionado existe en la base de datos.
+     * - Verifica si el préstamo con el ID proporcionado está asociado al cliente.
+     * - Calcula el saldo pendiente del préstamo sumando los saldos de las cuotas pendientes.
+     * - Calcula cuántas cuotas del préstamo han sido pagadas y cuántas están pendientes.
      * @param dni
      * @param idPrestamo
-     * @return cadena de texto informativa con el saldo pendiente del prestamo que tiene ese cliente
+     * @return Un mensaje que incluye el número de cuotas pagadas, cuotas pendientes y el saldo pendiente del préstamo,
+     *         o un mensaje de error si el cliente o el préstamo no existen o no están asociados.
     */
     public String obtenerSaldoPendiente(String dni, int idPrestamo){
 
@@ -477,9 +530,10 @@ public class PrestamoServicio {
 
             cuotasPendientes = (prestamo.getPlazo()*12) - cuotasPagadas;
     
-            return String.format("Pagado: %d cuota(s) \n"
-                                +"Pendiente: %d cuota(s)\n"
-                                +"Saldo Pendiete: %.2f", cuotasPagadas, cuotasPendientes, saldoPendiente);
+            return String.format("""
+                                 Pagado: %d cuota(s) 
+                                 Pendiente: %d cuota(s)
+                                 Saldo Pendiete: %.2f""", cuotasPagadas, cuotasPendientes, saldoPendiente);
             
         } catch (Exception e) {
             return "El id del prestamo no corresponde a un prestamo existente! \n" + e;
@@ -526,8 +580,9 @@ public class PrestamoServicio {
     
                 if (cuota.getEstado() == 'A' && cuota.getId().getNumeroCuota() == prestamoBD.getPlazo()*12){
                     cuota.setSaldo(0);
-                    return String.format("Ya no existen cuotas a pagar para este prestamo!\n"
-                                       + "El saldo del prestamo es de: %.2f", saldoPendiente);
+                    return String.format("""
+                                         Ya no existen cuotas a pagar para este prestamo!
+                                         El saldo del prestamo es de: %.2f""", saldoPendiente);
                 }
             }
     
@@ -536,8 +591,10 @@ public class PrestamoServicio {
             }
             this.prestamosRepositorio.save(prestamoBD);
     
-            return String.format("Se ha realizado con exito el pago de la cuota"
-                               + " #%d!.\n \nEl saldo del prestamos es de: %.2f", 
+            return String.format("""
+                                 Se ha realizado con exito el pago de la cuota #%d!.
+                                  
+                                 El saldo del prestamos es de: %.2f""", 
                                numeroCuota, saldoPendiente);
 
         } catch (Exception e) {

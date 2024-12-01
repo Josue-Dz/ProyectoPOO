@@ -3,6 +3,7 @@ package hn.unah.poo.proyecto.servicios;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,17 @@ public class ClienteServicio {
     private DireccionesRepositorio direccionesRepositorio;
 
     /**
-     * Método para crear un nuevo cliente
+    * Crea un nuevo cliente en la base de datos.
+     * Este método realiza las siguientes operaciones:
+     * - Verifica si el cliente ya existe en la base de datos mediante su DNI.
+     * - Valida que el cliente tenga al menos una dirección y no más de dos.
+     * - Asocia cada dirección al cliente antes de guardar los datos.
+     * - Almacena el cliente y sus direcciones en la base de datos.
      * @param nvoClienteDTO
-     * @return cadena informativa respecto a la correcta o incorrecta creación del cliente
+     * @return Un mensaje indicando si el cliente fue creado exitosamente, o una descripción del error
+     *         en caso de que no se haya podido realizar la operación.
      */
+    
     public String crearCliente(ClienteDTO nvoClienteDTO){
         try {
             if (this.clienteRepositorio.existsById(nvoClienteDTO.getDni())){
@@ -65,11 +73,16 @@ public class ClienteServicio {
 
 
     /**
+     * * Agrega una nueva dirección a un cliente existente en la base de datos.
+     * Este método verifica que:
+     * - El cliente existe en la base de datos.
+     * - El cliente no tiene más de dos direcciones asignadas.
      * 
      * @param dni
      * @param direccionDTO
-     * @return
+     * @return Mensaje indicando si la direccion fue agregada al cliente existente.
      */
+
     public String agregarDireccion(String dni, DireccionesDTO direccionDTO){
         try {
             if(direccionDTO == null){
@@ -102,51 +115,70 @@ public class ClienteServicio {
 
 
     /**
+     * Busca un cliente por su DNI y retorna toda su información en formato DTO.
      * 
+     * Este método realiza las siguientes operaciones:
+     * - Verifica si el cliente existe en la base de datos.
+     * - Si existe, convierte la entidad `Cliente` a un objeto `ClienteDTO`.
+     * - Mapea las direcciones asociadas al cliente en una lista de `DireccionesDTO`.
+     * - Mapea los préstamos asociados al cliente en un conjunto de `PrestamosDTO`,
+     *   incluyendo las tablas de amortización correspondientes.
      * @param dni
-     * @return
+     * @return Un objeto `ClienteDTO` con toda la información del cliente, o `null` si el cliente no existe.
      */
-    public ClienteDTO buscarClientePorId(String dni){
-        
-        if(!this.clienteRepositorio.existsById(dni)){
-            return null;
-        }
 
-        Cliente cliente = this.clienteRepositorio.findById(dni).get();
-        ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class);
+     public Optional<ClienteDTO> buscarClientePorId(String dni) {
+        try {
 
-        clienteDTO.setDireccionesDTO(new ArrayList<>());
-        if (cliente.getDirecciones() != null){
-            for (Direcciones direccion : cliente.getDirecciones()) {
-                DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
-                clienteDTO.getDireccionesDTO().add(direccionDTO);
-            }
-        }
-
-        
-        clienteDTO.setPrestamosDTO(new HashSet<>());
-        if (cliente.getPrestamos() != null){
-            for(Prestamos prestamo : cliente.getPrestamos()){
-                PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
-                prestamoDTO.setTablaAmortizacionDTO(new ArrayList<>());
-
-                for(TablaAmortizacion cuota : prestamo.getTablaAmortizacion()){
-                    TablaAmortizacionDTO cuotaDTO = SingletonModelMapper.getModelMapperInstance().map(cuota, TablaAmortizacionDTO.class);
-                    prestamoDTO.getTablaAmortizacionDTO().add(cuotaDTO);
+            // Obtener el cliente desde el repositorio
+            Cliente cliente = this.clienteRepositorio.findById(dni).get();
+            ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class);
+    
+            // Mapear las direcciones
+            clienteDTO.setDireccionesDTO(new ArrayList<>());
+            if (cliente.getDirecciones() != null) {
+                for (Direcciones direccion : cliente.getDirecciones()) {
+                    DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
+                    clienteDTO.getDireccionesDTO().add(direccionDTO);
                 }
-                clienteDTO.getPrestamosDTO().add(prestamoDTO);
             }
-        }
-        
+    
+            // Mapear los préstamos y sus tablas de amortización
+            clienteDTO.setPrestamosDTO(new HashSet<>());
+            if (cliente.getPrestamos() != null) {
+                for (Prestamos prestamo : cliente.getPrestamos()) {
+                    PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+                    prestamoDTO.setTablaAmortizacionDTO(new ArrayList<>());
+    
+                    for (TablaAmortizacion cuota : prestamo.getTablaAmortizacion()) {
+                        TablaAmortizacionDTO cuotaDTO = SingletonModelMapper.getModelMapperInstance().map(cuota, TablaAmortizacionDTO.class);
+                        prestamoDTO.getTablaAmortizacionDTO().add(cuotaDTO);
+                    }
+                    clienteDTO.getPrestamosDTO().add(prestamoDTO);
 
-        return clienteDTO;
+                    return Optional.of(clienteDTO);
+                }
+            }
+    
+            // Retornar el cliente mapeado dentro de un Optional
+            return Optional.of(clienteDTO);
+        } catch (Exception e) {
+           
+            return Optional.empty();
+        }
     }
 
-
     /**
-     * 
-     * @return
+     * Recupera la lista completa de clientes registrados en la base de datos.
+     * Este método realiza las siguientes operaciones:
+     * - Consulta todos los clientes almacenados en la base de datos.
+     * - Convierte cada entidad `Cliente` a un objeto `ClienteDTO`.
+     * - Mapea las direcciones asociadas al cliente en una lista de `DireccionesDTO`.
+     * - Mapea los préstamos asociados al cliente en un conjunto de `PrestamosDTO`.
+     * @return Una lista de objetos `ClienteDTO`, donde cada elemento contiene la información completa
+     *         de un cliente, incluyendo direcciones y préstamos asociados.
      */
+
     public List<ClienteDTO> obtenerTodos() {
 
         List<Cliente> listaClientes = clienteRepositorio.findAll();
@@ -178,10 +210,17 @@ public class ClienteServicio {
     }
 
 /**
+ * Elimina un cliente de la base de datos si cumple con las condiciones necesarias.
+ * 
+ * Este método realiza las siguientes operaciones:
+ * - Verifica si el cliente existe en la base de datos.
+ * - Comprueba si el cliente tiene préstamos con saldo pendiente.
+ * - Si el cliente no tiene préstamos con saldo pendiente, procede a eliminarlo.
  * 
  * @param dni
- * @return
+ * @return Un mensaje indicando si la eliminación fue exitosa o enviando una excepcion.
  */
+
 public String eliminarCliente(String dni) {
     try {
         if (!this.clienteRepositorio.existsById(dni)) {
@@ -206,12 +245,21 @@ public String eliminarCliente(String dni) {
 }
 
 /**
+ *Actualiza la información de un cliente existente en la base de datos.
  * 
+ * Este método realiza las siguientes operaciones:
+ * - Verifica si el cliente con el DNI proporcionado existe en la base de datos.
+ * - Actualiza los campos modificables del cliente, como correo, sueldo y teléfono.
+ * - Actualiza las direcciones asociadas al cliente, reemplazando las existentes con las nuevas proporcionadas.
+ * - Almacena los cambios en la base de datos.
  * @param dni
  * @param clienteDTO
- * @return
+ * @return Un mensaje indicando si la actualización fue exitosa o enviando una excepcion.
  */
+ 
+
 public String actualizarCliente(String dni, ClienteDTO clienteDTO) {
+
     try {
         if (!this.clienteRepositorio.existsById(dni)) {
             return "El cliente con DNI: " + dni + " no existe. No se puede actualizar.";
