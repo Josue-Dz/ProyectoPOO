@@ -32,12 +32,12 @@ public class PrestamosController {
     }  
 
     @GetMapping("/buscar/prestamo/{idPrestamo}")
-    public PrestamosDTO buscarPrestamoPorId(@PathVariable(name ="idPrestamo") int idPrestamo) {
+    public PrestamosDTO buscarPrestamoPorid(@PathVariable(name ="idPrestamo") int idPrestamo) {
         return prestamosServicio.buscarPrestamoPorId(idPrestamo);
     }
     
     @GetMapping("/buscar/{dni}")
-    public List<PrestamosDTO> buscarPrestamosPorDni(@PathVariable(name ="dni") String dni) {
+    public List<PrestamosDTO> buscarPrestamosPordni(@PathVariable(name ="dni") String dni) {
         return prestamosServicio.buscarPrestamoPorDni(dni);
     }
 
