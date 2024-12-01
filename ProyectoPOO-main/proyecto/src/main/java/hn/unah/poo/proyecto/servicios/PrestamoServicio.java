@@ -260,45 +260,6 @@ public class PrestamoServicio {
        
     }
 
-    /*
-     
-    /**
-     * Obtiene el saldo Pendiente del prestamo buscado por el id
- * @param idPrestamo
- * @return El saldo pendiente del prestamo.
- public String obtenerSaldo(int idPrestamo) {
-    // Verificar si el préstamo existe
-    if (!this.prestamosRepositorio.existsById(idPrestamo)) {
-        return "El id del Prestamo: " + idPrestamo + " no existe en el sistema";
-    }
-    
-        // Obtener el objeto Prestamo desde el repositorio
-        Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).get();
-        
-        // Inicializar el saldo pendiente
-        double saldoPendiente = 0;
-        
-        // Verificar si el préstamo tiene tabla de amortización
-        if (prestamo.getTablaAmortizacion() != null) {
-            // Iterar sobre la tabla de amortización
-            for (TablaAmortizacion amortizacion : prestamo.getTablaAmortizacion()) {
-                // Si el estado es 'P' (pendiente), sumar el saldo
-                if (amortizacion.getEstado() == 'P') { // 'P' representa pendiente
-                saldoPendiente += amortizacion.getSaldo();
-            }
-            }
-        }
-        // Formatear el saldo pendiente con 14 enteros y 2 decimales
-        DecimalFormat df = new DecimalFormat("###,###,###,###.00"); // 14 enteros y 2 decimales
-        String saldoFormateado = df.format(saldoPendiente);
-        
-        // Devolver el saldo pendiente
-        return "El saldo pendiente del préstamo con ID " + idPrestamo + " es de: " + saldoFormateado;
-    }
-    
-    */
-    
-
      /**
      * Calcula la cuota mensual de un préstamo utilizando la fórmula de amortización.
      * @param monto

@@ -33,14 +33,6 @@ public class PrestamosController {
         return prestamosServicio.crearPrestamo(dni, nvoPrestamosDTO);
     }  
 
-    /*
-     
-    @GetMapping("/buscar/prestamo/{idPrestamo}")
-    public PrestamosDTO buscarPrestamoPorId(@PathVariable(name ="idPrestamo") int idPrestamo) {
-        return prestamosServicio.buscarPrestamoPorId(idPrestamo);
-    }
-    */
-
     
     @Operation(summary = "Obtiene los préstamos asociados a un cliente mediante su DNI",
     description = """
@@ -89,15 +81,6 @@ public class PrestamosController {
         return prestamosServicio.obtenerSaldoPendiente(dni, idPrestamo);
     }
 
-    /*
-    
-    @Operation(summary = "Obtiene el saldo del Prestamo buscado", description = "Obtiene el saldo Pendiente del prestamo con el id buscado")
-    @GetMapping("/obtenerSaldo/{idPrestamo}")
-    public String obtenerSaldo(@PathVariable int idPrestamo) {
-        return prestamosServicio.obtenerSaldo(idPrestamo);
-    }
-    */
-    
     
     @Operation(summary = "Permite pagar una cuota de un préstamo asociado a un cliente",
     description = """
