@@ -17,7 +17,6 @@ import hn.unah.poo.proyecto.models.Prestamos;
 import hn.unah.poo.proyecto.models.TablaAmortizacion;
 import hn.unah.poo.proyecto.repositories.ClienteRepositorio;
 import hn.unah.poo.proyecto.repositories.DireccionesRepositorio;
-import hn.unah.poo.proyecto.repositories.PrestamosRepositorio;
 import hn.unah.poo.proyecto.singleton.SingletonModelMapper;
 
 @Service
