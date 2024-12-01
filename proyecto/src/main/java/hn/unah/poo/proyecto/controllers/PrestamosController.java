@@ -52,11 +52,12 @@ public class PrestamosController {
         return prestamosServicio.asociarPrestamoCliente(param, null);
     }
 
+    /**
     @GetMapping("/obtener/saldo/{dni}/{idPrestamo}")
     public String obtenerSaldoPendiente(@PathVariable(name = "dni") String dni, @PathVariable(name = "idPrestamo") int idPrestamo) {
         return prestamosServicio.obtenerSaldoPendiente(dni, idPrestamo);
     }
-
+   */
      @Operation(summary = "Obtiene el saldo del Prestamo buscado", description = "Obtiene el saldo Pendiente del prestamo con el id buscado")
     @GetMapping("/obtenerSaldo/{idPrestamo}")
     public String obtenerSaldo(@PathVariable int idPrestamo) {
