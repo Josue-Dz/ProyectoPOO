@@ -257,8 +257,7 @@ public String eliminarCliente(String dni) {
  * @return Un mensaje indicando si la actualización fue exitosa o enviando una excepcion.
  */
  
-
-public String actualizarCliente(String dni, ClienteDTO clienteDTO) {
+ public String actualizarCliente(String dni, ClienteDTO clienteDTO) {
 
     try {
         if (!this.clienteRepositorio.existsById(dni)) {
@@ -278,11 +277,14 @@ public String actualizarCliente(String dni, ClienteDTO clienteDTO) {
             clienteExistente.setTelefono(clienteDTO.getTelefono());
         }
 
-        // Actualizar direcciones
+        // Actualizar direcciones con límite de 2 direcciones
         if (clienteDTO.getDireccionesDTO() != null) {
-            // Limpiar direcciones existentes
-            clienteExistente.getDirecciones().clear();
+            if (clienteDTO.getDireccionesDTO().size() > 2) {
+                return "El cliente no puede tener más de 2 direcciones. Intente nuevamente.";
+            }
 
+            // Limpiar las direcciones existentes y reemplazar con las nuevas
+            clienteExistente.getDirecciones().clear();
             for (DireccionesDTO direccionDTO : clienteDTO.getDireccionesDTO()) {
                 Direcciones direccion = SingletonModelMapper.getModelMapperInstance().map(direccionDTO, Direcciones.class);
                 direccion.setCliente(clienteExistente);
@@ -294,9 +296,10 @@ public String actualizarCliente(String dni, ClienteDTO clienteDTO) {
         this.clienteRepositorio.save(clienteExistente);
         return "El cliente con DNI: " + dni + " ha sido actualizado exitosamente.";
     } catch (Exception e) {
-        return "No ha sido posible completar la acción " + e;
+        return "No ha sido posible completar la acción. Error: " + e.getMessage();
     }
 }
+
 
 
 }

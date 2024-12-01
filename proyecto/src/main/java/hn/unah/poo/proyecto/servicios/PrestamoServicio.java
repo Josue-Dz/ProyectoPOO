@@ -500,6 +500,7 @@ public class PrestamoServicio {
      * @return Un mensaje que incluye el número de cuotas pagadas, cuotas pendientes y el saldo pendiente del préstamo,
      *         o un mensaje de error si el cliente o el préstamo no existen o no están asociados.
     */
+    
     public String obtenerSaldoPendiente(String dni, int idPrestamo){
 
         try {

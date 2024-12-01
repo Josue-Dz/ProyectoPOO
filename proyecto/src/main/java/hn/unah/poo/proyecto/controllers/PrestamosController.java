@@ -38,7 +38,7 @@ description = """
                   Permite obtener los detalles de un prestamo especifico mediante su ID. 
                   \n Retorna un objeto `PrestamosDTO` que contiene la informacion del prestamo solicitado o `Optional.empty()` 
                   si no se encuentra el prestamo con el ID proporcionado.""")
-    @GetMapping("/buscar/prestamo/{idPrestamo}")
+    @GetMapping("/buscarPorId/{idPrestamo}")
     public Optional<PrestamosDTO> buscarPrestamoPorId(@PathVariable(name ="idPrestamo") int idPrestamo) {
         return prestamosServicio.buscarPrestamoPorId(idPrestamo);
     }

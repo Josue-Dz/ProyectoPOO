@@ -71,10 +71,10 @@ public class ClienteController {
     Recibe un objeto `ClienteDTO` en el cuerpo de la solicitud con los datos actualizados.  
     Los campos permitidos para actualizar incluyen correo, sueldo, telefono y direcciones asociadas.  
     Retorna un mensaje indicando si la actualizacion fue exitosa o por qu\u00e9 no pudo realizarse.""")
-    @PutMapping("/actualizar/{id}")
-    public String Actualizarcliente(@PathVariable(name="id") String id, 
+    @PutMapping("/actualizar/{dni}")
+    public String Actualizarcliente(@PathVariable(name="dni") String dni, 
                                 @RequestBody ClienteDTO cliente) {
-        return this.clienteServicio.actualizarCliente(id, cliente);
+        return this.clienteServicio.actualizarCliente(dni, cliente);
     }
     
 }
