@@ -227,6 +227,7 @@ public class PrestamoServicio {
  * @param idPrestamo
  * @return El saldo pendiente del prestamo.
  */
+ /**
     public String obtenerSaldo(int idPrestamo) {
         // Verificar si el préstamo existe
         if (!this.prestamosRepositorio.existsById(idPrestamo)) {
@@ -256,6 +257,7 @@ public class PrestamoServicio {
         // Devolver el saldo pendiente
         return "El saldo pendiente del préstamo con ID " + idPrestamo + " es de: " + saldoFormateado;
     }
+    */
 
      /**
      * Método que permite obtener la cuota del prestamo a pagar
