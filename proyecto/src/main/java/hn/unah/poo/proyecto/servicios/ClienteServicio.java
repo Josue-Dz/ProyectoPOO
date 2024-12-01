@@ -262,6 +262,7 @@ public String eliminarCliente(String dni) {
     try {
         if (!this.clienteRepositorio.existsById(dni)) {
             return "El cliente con DNI: " + dni + " no existe. No se puede actualizar.";
+            
         }
 
         Cliente clienteExistente = this.clienteRepositorio.findById(dni).get();
@@ -279,7 +280,7 @@ public String eliminarCliente(String dni) {
 
         // Actualizar direcciones con límite de 2 direcciones
         if (clienteDTO.getDireccionesDTO() != null) {
-            if (clienteDTO.getDireccionesDTO().size() > 2) {
+            if (clienteDTO.getDireccionesDTO().size() < 2) {
                 return "El cliente no puede tener más de 2 direcciones. Intente nuevamente.";
             }
 
