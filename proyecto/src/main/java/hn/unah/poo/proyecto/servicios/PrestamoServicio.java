@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import hn.unah.poo.proyecto.dtos.PrestamosDTO;
 import hn.unah.poo.proyecto.dtos.TablaAmortizacionId;
-import hn.unah.poo.proyecto.enumeration.TipoPrestamo;
 import hn.unah.poo.proyecto.models.Cliente;
 import hn.unah.poo.proyecto.models.Prestamos;
 import hn.unah.poo.proyecto.models.TablaAmortizacion;
@@ -65,11 +64,9 @@ public class PrestamoServicio {
         nvoPrestamosDTO.setCuota(cuota);
         nvoPrestamosDTO.setEstado('P');
 
-
-        Prestamos prestamoBD = SingletonModelMapper.getModelMapperInstance().map(nvoPrestamosDTO, Prestamos.class);
         
 
-        return asociarPrestamoCliente(dni, prestamoBD);
+        return asociarPrestamoCliente(dni, nvoPrestamosDTO);
     }
 
     /**
@@ -134,10 +131,12 @@ public class PrestamoServicio {
      * @param prestamoBD
      * @return una cadena de texto con la información referente a la correcta o incorrecta asociación del prestamo al cliente
      */
-    public String asociarPrestamoCliente(String dni, Prestamos prestamoBD){
+    private String asociarPrestamoCliente(String dni, PrestamosDTO prestamoDTO){
 
         try {
+            
             Cliente cliente = this.clienteRepositorio.findById(dni).get();
+            Prestamos prestamo = SingletonModelMapper.getModelMapperInstance().map(prestamoDTO, Prestamos.class);
 
             // Calcular el nivel de endeudamiento
             double totalEgresos = obtenerTotalDeEgresos(cliente);
@@ -149,11 +148,66 @@ public class PrestamoServicio {
             }
 
             // Crear la tabla de amortización para el préstamo
-            prestamoBD.getClientes().add(cliente);
-            this.prestamosRepositorio.save(prestamoBD);
+
+            prestamo.setTipoPrestamo(prestamoDTO.getTipoPrestamo());
+            prestamo.getClientes().add(cliente);
+            this.prestamosRepositorio.save(prestamo);
     
-            cliente.getPrestamos().add(prestamoBD);
-            crearTablaAmortizacion(prestamoBD, prestamoBD.getCuota(), prestamoBD.getTasaInteres());
+            cliente.getPrestamos().add(prestamo);
+            crearTablaAmortizacion(prestamo, prestamo.getCuota(), prestamo.getTasaInteres());
+            this.clienteRepositorio.save(cliente);
+    
+            return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
+        } catch (Exception e) {
+            return "Ha ocurrido un error: " + e;
+        }
+       
+    }
+
+    /***
+     * Método que permite asociar un cliente ya existente a un prestamo también existente
+     * @param dni
+     * @param idPrestamo
+     * @return una cadena de texto con la información si fue posible o no realizar la asociación del cliente al prestamo
+     * de manera exitosa
+     */
+    public String asociarPrestamoACliente(String dni, int idPrestamo){
+
+        try {
+
+            if (!this.prestamosRepositorio.existsById(idPrestamo)){
+                return "El prestamo con ID: " + idPrestamo + " no existe!";
+            }
+
+            if (!this.clienteRepositorio.existsById(dni)){
+                return "El cliente al que desea asociar el prestamo no está registrado";
+            }
+
+            Cliente cliente = this.clienteRepositorio.findById(dni).get(); 
+            Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).get();
+
+            if (prestamo.getClientes().contains(cliente)){
+                return "El cliente con DNI: " + dni + " ya tiene asociado este prestamo!";
+            }
+
+            prestamo.getTipoPrestamo();
+
+            // Calcular el nivel de endeudamiento
+            double totalEgresos = obtenerTotalDeEgresos(cliente);
+            double sueldo = cliente.getSueldo();
+            double nivelEndeudamiento = totalEgresos / sueldo;
+    
+            if (nivelEndeudamiento > 0.40) {
+                return "El nivel de endeudamiento del cliente con DNI " + dni + " es superior al 40%. No se puede crear el préstamo.";
+            }
+
+            // Crear la tabla de amortización para el préstamo
+
+            prestamo.getClientes().add(cliente);
+            this.prestamosRepositorio.save(prestamo);
+    
+            cliente.getPrestamos().add(prestamo);
+            crearTablaAmortizacion(prestamo, prestamo.getCuota(), prestamo.getTasaInteres());
             this.clienteRepositorio.save(cliente);
     
             return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
@@ -191,27 +245,32 @@ public class PrestamoServicio {
      * @param tipoPrestamo
      * @return el valor de la tasa de interés
      */
-    private double obtenerTasaInteres(TipoPrestamo tipoPrestamo) {
-        switch (tipoPrestamo) {
-            case V -> {
+    private double obtenerTasaInteres(String tipoPrestamo) {
+
+          switch (tipoPrestamo) {
+            case "V":
+
                 return tasaVehicular;
-            }
-            case P -> {
+            
+            case "P":
+
                 return tasaPersonal;
-            }
-            case H -> {
+
+            case "H":
+
                 return tasaHipotecario;
-            }
-            default ->
+
+            default:
                 throw new IllegalArgumentException("Tasa de interés no disponible para el tipo de préstamo " + tipoPrestamo);
         }
+        
     }
 
-
+    
     /**
-     * 
+     * Permite obtener los Egresos totales de un cliente en particular
      * @param cliente
-     * @return
+     * @return double con el cálculo de los egresos totales
      */
     private double obtenerTotalDeEgresos(Cliente cliente) {
         // Inicializar la variable totalEgresos en 0
@@ -225,15 +284,17 @@ public class PrestamoServicio {
                 totalEgresos += prestamo.getCuota();
             }
         }
+
         return totalEgresos;
     }
 
     /**
-     * 
+     * Crea la tabla amortización donde se muestra la información del plan de pago del prestamo 
+     * con el dato numerico de las pagadas y por pagar
      * @param prestamoBD
      * @param cuota
      * @param tasaDeInteres
-     * @return
+     * @return una cadena de texto informativa acerca de la correcta o incorrecta creación de la misma
      */
     private String crearTablaAmortizacion(Prestamos prestamoBD, double cuota, double tasaDeInteres) {
         try {
@@ -309,10 +370,10 @@ public class PrestamoServicio {
 
 
     /**
-     * 
+     * Método que permite obtener el saldo pendiente de un prestamo asociado a un cliente
      * @param dni
      * @param idPrestamo
-     * @return
+     * @return cadena de texto informativa con el saldo pendiente del prestamo que tiene ese cliente
     */
     public String obtenerSaldoPendiente(String dni, int idPrestamo){
 
@@ -333,11 +394,15 @@ public class PrestamoServicio {
     
             for (TablaAmortizacion cuota : prestamo.getTablaAmortizacion()) {
                 if (cuota.getEstado() == 'P'){
-                    saldoPendiente =+ cuota.getSaldo();
+                    saldoPendiente += cuota.getPrestamos().getCuota();
                     cuotasPagadas--;
-                }   
+                }  
+                
+                if (cuotasPagadas == 0){
+                    saldoPendiente = cuota.getPrestamos().getCuota() * (cuota.getPrestamos().getPlazo() * 12);
+                }
             }
-    
+
             cuotasPendientes = (prestamo.getPlazo()*12) - cuotasPagadas;
     
             return String.format("Pagado: %d cuota(s) \n"
@@ -345,7 +410,7 @@ public class PrestamoServicio {
                                 +"Saldo Pendiete: %.2f", cuotasPagadas, cuotasPendientes, saldoPendiente);
             
         } catch (Exception e) {
-            return "No se pudo completar la acción " + e;
+            return "El id del prestamo no corresponde a un prestamo existente! \n" + e;
         }
 
     }

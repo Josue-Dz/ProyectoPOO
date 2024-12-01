@@ -27,7 +27,7 @@ public class TablaAmortizacion {
     @EmbeddedId
     private TablaAmortizacionId id;
 
-    @Column(columnDefinition = "DECIMAL(14,2)")
+    //@Column(columnDefinition = "DECIMAL(14,2)")
     private double interes;
 
     @Column(columnDefinition = "DECIMAL(14,2)")

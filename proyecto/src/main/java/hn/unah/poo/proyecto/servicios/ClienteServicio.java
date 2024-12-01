@@ -29,9 +29,9 @@ public class ClienteServicio {
     private DireccionesRepositorio direccionesRepositorio;
 
     /**
-     * 
+     * Método para crear un nuevo cliente
      * @param nvoClienteDTO
-     * @return
+     * @return cadena informativa respecto a la correcta o incorrecta creación del cliente
      */
     public String crearCliente(ClienteDTO nvoClienteDTO){
         try {
@@ -107,7 +107,7 @@ public class ClienteServicio {
      * @return
      */
     public ClienteDTO buscarClientePorId(String dni){
-       
+        
         if(!this.clienteRepositorio.existsById(dni)){
             return null;
         }

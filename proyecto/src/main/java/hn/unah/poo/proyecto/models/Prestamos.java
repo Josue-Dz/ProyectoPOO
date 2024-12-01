@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import hn.unah.poo.proyecto.enumeration.TipoPrestamo;
+import hn.unah.poo.proyecto.enumeration.TipoPrestamoConverter;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,7 +39,6 @@ public class Prestamos {
 
     private int plazo;
 
-    @Column(name = "tasa_interes", columnDefinition = "DECIMAL(14,2)")
     private double tasaInteres;
 
     @Column(columnDefinition = "DECIMAL(14,2)")
@@ -45,7 +46,8 @@ public class Prestamos {
 
     private char estado;
 
-   @Column(name = "tipo_prestamo")
+    @Convert(converter = TipoPrestamoConverter.class)
+    @Column(name = "tipo_prestamo")
     private TipoPrestamo tipoPrestamo;
 
     @ManyToMany(mappedBy= "prestamos", cascade = CascadeType.ALL)
@@ -54,4 +56,7 @@ public class Prestamos {
     @OneToMany(mappedBy= "prestamos", cascade = CascadeType.ALL)
     private List<TablaAmortizacion> tablaAmortizacion;
 
+    public void setTipoPrestamo(String tipoPrestamo){
+        this.tipoPrestamo = TipoPrestamo.fromCode(tipoPrestamo.charAt(0));
+    }
 }

@@ -2,7 +2,6 @@ package hn.unah.poo.proyecto.dtos;
 
 import java.util.List;
 
-import hn.unah.poo.proyecto.enumeration.TipoPrestamo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +25,7 @@ public class PrestamosDTO {
 
     private char estado;
 
-    private TipoPrestamo tipoPrestamo;
+    private String tipoPrestamo;
 
     private List<TablaAmortizacionDTO> tablaAmortizacionDTO;
 
