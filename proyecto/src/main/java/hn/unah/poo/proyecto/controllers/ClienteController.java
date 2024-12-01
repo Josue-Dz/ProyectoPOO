@@ -73,8 +73,8 @@ public class ClienteController {
     Retorna un mensaje indicando si la actualizacion fue exitosa o por qu\u00e9 no pudo realizarse.""")
     @PutMapping("/actualizar/{dni}")
     public String Actualizarcliente(@PathVariable(name="dni") String dni, 
-                                @RequestBody ClienteDTO cliente) {
-        return this.clienteServicio.actualizarCliente(dni, cliente);
+                                @RequestBody ClienteDTO clienteDTO) {
+        return this.clienteServicio.actualizarCliente(dni, clienteDTO);
     }
     
 }

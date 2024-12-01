@@ -268,29 +268,50 @@ public String eliminarCliente(String dni) {
         Cliente clienteExistente = this.clienteRepositorio.findById(dni).get();
 
         // Actualizar campos permitidos
-        if (clienteDTO.getCorreo() != null) {
-            clienteExistente.setCorreo(clienteDTO.getCorreo());
+        if (clienteDTO.getCorreo() == null || clienteDTO.getSueldo() == 0 || clienteDTO.getTelefono() == null) {
+            return "No es posible actualizar la información mientras sueldo,"
+                   + " telefono o el correo se encuentren vacíos";
         }
-        if (clienteDTO.getSueldo() != 0) {
-            clienteExistente.setSueldo(clienteDTO.getSueldo());
-        }
-        if (clienteDTO.getTelefono() != null) {
-            clienteExistente.setTelefono(clienteDTO.getTelefono());
+
+        clienteExistente.setCorreo(clienteDTO.getCorreo());
+        clienteExistente.setTelefono(clienteDTO.getTelefono());
+        clienteExistente.setSueldo(clienteDTO.getSueldo());
+
+        if (clienteDTO.getPrestamosDTO() != null){
+            return "No es posible actualizar la información sobre los prestamos del cliente,"
+            + " solamente direcciones y algunos datos personales!.";
         }
 
         // Actualizar direcciones con límite de 2 direcciones
         if (clienteDTO.getDireccionesDTO() != null) {
-            if (clienteDTO.getDireccionesDTO().size() < 2) {
+            if (clienteDTO.getDireccionesDTO().size() > 2) {
                 return "El cliente no puede tener más de 2 direcciones. Intente nuevamente.";
             }
 
-            // Limpiar las direcciones existentes y reemplazar con las nuevas
-            clienteExistente.getDirecciones().clear();
-            for (DireccionesDTO direccionDTO : clienteDTO.getDireccionesDTO()) {
-                Direcciones direccion = SingletonModelMapper.getModelMapperInstance().map(direccionDTO, Direcciones.class);
-                direccion.setCliente(clienteExistente);
-                clienteExistente.getDirecciones().add(direccion);
+            int i = 0;
+            if(clienteDTO.getDireccionesDTO().size() <= 2){
+                List<Direcciones> listaDirecciones = new ArrayList<>();
+                List<DireccionesDTO> listaDireccionesDTO = clienteDTO.getDireccionesDTO();
+
+                for (DireccionesDTO direccionDTO : clienteDTO.getDireccionesDTO()){
+                    Direcciones direccion = SingletonModelMapper.getModelMapperInstance().map(direccionDTO, Direcciones.class);
+                    listaDirecciones.add(direccion);
+                }
+
+                
+                    clienteExistente.getDirecciones().get(i).setPais(listaDirecciones.get(i).getPais());
+                    clienteExistente.getDirecciones().get(i).setDepartamento(listaDirecciones.get(i).getDepartamento());
+                    clienteExistente.getDirecciones().get(i).setCiudad(listaDirecciones.get(i).getCiudad());
+                    clienteExistente.getDirecciones().get(i).setColonia(listaDirecciones.get(i).getColonia());
+                    clienteExistente.getDirecciones().get(i).setReferencia(listaDirecciones.get(i).getReferencia());
+
+                    if(clienteDTO.getDireccionesDTO().size() > clienteExistente.getDirecciones().size()){
+                        agregarDireccion(dni, listaDireccionesDTO.get(i+1));
+                    }
+                clienteDTO.getDireccionesDTO().clear();
+                
             }
+            
         }
 
         // Guardar cambios en el repositorio
