@@ -3,6 +3,7 @@ package hn.unah.poo.proyecto.servicios;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -123,41 +124,48 @@ public class ClienteServicio {
      * @param dni
      * @return Un objeto `ClienteDTO` con toda la información del cliente, o `null` si el cliente no existe.
      */
-    public ClienteDTO buscarClientePorId(String dni){
-       
-        if(!this.clienteRepositorio.existsById(dni)){
-            return null;
-        }
 
-        Cliente cliente = this.clienteRepositorio.findById(dni).get();
-        ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class);
+    public Optional<ClienteDTO> buscarClientePorId(String dni) {
+        try {
 
-        clienteDTO.setDireccionesDTO(new ArrayList<>());
-        if (cliente.getDirecciones() != null){
-            for (Direcciones direccion : cliente.getDirecciones()) {
-                DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
-                clienteDTO.getDireccionesDTO().add(direccionDTO);
-            }
-        }
-
-        clienteDTO.setPrestamosDTO(new HashSet<>());
-        if (cliente.getPrestamos() != null){
-            for(Prestamos prestamo : cliente.getPrestamos()){
-                PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
-                prestamoDTO.setTablaAmortizacionDTO(new ArrayList<>());
-
-                for(TablaAmortizacion cuota : prestamo.getTablaAmortizacion()){
-                    TablaAmortizacionDTO cuotaDTO = SingletonModelMapper.getModelMapperInstance().map(cuota, TablaAmortizacionDTO.class);
-                    prestamoDTO.getTablaAmortizacionDTO().add(cuotaDTO);
+            // Obtener el cliente desde el repositorio
+            Cliente cliente = this.clienteRepositorio.findById(dni).get();
+            ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class);
+    
+            // Mapear las direcciones
+            clienteDTO.setDireccionesDTO(new ArrayList<>());
+            if (cliente.getDirecciones() != null) {
+                for (Direcciones direccion : cliente.getDirecciones()) {
+                    DireccionesDTO direccionDTO = SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class);
+                    clienteDTO.getDireccionesDTO().add(direccionDTO);
                 }
-                clienteDTO.getPrestamosDTO().add(prestamoDTO);
             }
+    
+            // Mapear los préstamos y sus tablas de amortización
+            clienteDTO.setPrestamosDTO(new HashSet<>());
+            if (cliente.getPrestamos() != null) {
+                for (Prestamos prestamo : cliente.getPrestamos()) {
+                    PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+                    prestamoDTO.setTablaAmortizacionDTO(new ArrayList<>());
+    
+                    for (TablaAmortizacion cuota : prestamo.getTablaAmortizacion()) {
+                        TablaAmortizacionDTO cuotaDTO = SingletonModelMapper.getModelMapperInstance().map(cuota, TablaAmortizacionDTO.class);
+                        prestamoDTO.getTablaAmortizacionDTO().add(cuotaDTO);
+                    }
+                    clienteDTO.getPrestamosDTO().add(prestamoDTO);
+
+                    return Optional.of(clienteDTO);
+                }
+            }
+    
+            // Retornar el cliente mapeado dentro de un Optional
+            return Optional.of(clienteDTO);
+        } catch (Exception e) {
+           
+            return Optional.empty();
         }
-        
-
-        return clienteDTO;
     }
-
+    
 
     /**
      * Recupera la lista completa de clientes registrados en la base de datos.
@@ -200,4 +208,6 @@ public class ClienteServicio {
 
         return listaClientesDTO;
     }    
-}
+ 
+
+ }

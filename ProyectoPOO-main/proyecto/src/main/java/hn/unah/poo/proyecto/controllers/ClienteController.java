@@ -1,6 +1,7 @@
 package hn.unah.poo.proyecto.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +38,9 @@ public class ClienteController {
 
     @Operation(summary = "Obtener información del cliente por DNI", description = "Permite recuperar la información completa de un cliente específico identificado por su DNI." +
     " Si el cliente no existe, se retornará un error.")
+    
     @GetMapping("/obtener/cliente/{dni}")
-    public ClienteDTO obtenerClientePorId(@PathVariable(name = "dni") String dni) {
+    public Optional<ClienteDTO> obtenerClientePorId(@PathVariable(name = "dni") String dni) {
         return clienteServicio.buscarClientePorId(dni);
     }
     
