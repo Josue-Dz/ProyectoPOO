@@ -270,7 +270,7 @@ public String eliminarCliente(String dni) {
         // Actualizar campos permitidos
         if (clienteDTO.getCorreo() == null || clienteDTO.getSueldo() == 0 || clienteDTO.getTelefono() == null) {
             return "No es posible actualizar la información mientras sueldo,"
-                   + " telefono o el correo se encuentren vacíos";
+                   + " telefono o el correo se encuentren vacíos!";
         }
 
         clienteExistente.setCorreo(clienteDTO.getCorreo());
