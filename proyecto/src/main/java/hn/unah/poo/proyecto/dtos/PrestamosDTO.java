@@ -1,6 +1,7 @@
 package hn.unah.poo.proyecto.dtos;
 
 import java.util.List;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +29,7 @@ public class PrestamosDTO {
     private String tipoPrestamo;
 
     private List<TablaAmortizacionDTO> tablaAmortizacionDTO;
+
+    private Set<ClienteDTO> clientesDTO;
 
 }

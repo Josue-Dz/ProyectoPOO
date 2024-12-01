@@ -2,14 +2,21 @@
 
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+
+import hn.unah.poo.proyecto.dtos.ClienteDTO;
+import hn.unah.poo.proyecto.dtos.DireccionesDTO;
 import hn.unah.poo.proyecto.dtos.PrestamosDTO;
+import hn.unah.poo.proyecto.dtos.TablaAmortizacionDTO;
 import hn.unah.poo.proyecto.dtos.TablaAmortizacionId;
 import hn.unah.poo.proyecto.models.Cliente;
 import hn.unah.poo.proyecto.models.Prestamos;
@@ -69,59 +76,118 @@ public class PrestamoServicio {
         return asociarPrestamoCliente(dni, nvoPrestamosDTO);
     }
 
-    /**
-     * 
-     * @param dni
-     * @return
-     */
-    public List<PrestamosDTO> buscarPrestamoPorDni(String dni){
-
-        // Validar si el cliente existe en la base de datos
-        if (!this.clienteRepositorio.existsById(dni)) {
-            return null ; 
-        }
-
-        // Obtener el cliente desde el repositorio
-        Cliente cliente = this.clienteRepositorio.findById(dni).get();
-
-        // Crear la lista de DTOs para los préstamos asociados al cliente
-        List<PrestamosDTO> prestamosDTOList = new ArrayList<>();
-
-        // Verificar si el cliente tiene préstamos asociados
-        if (cliente.getPrestamos() != null) {
-            for (Prestamos prestamo : cliente.getPrestamos()) {
-                // Mapear cada préstamo a un DTO usando SingletonModelMapper
-                PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
-                prestamosDTOList.add(prestamoDTO);
+    
+/**
+ * Busca todos los prestamos que tiene el cliente con el DNI asociado
+ * @param dni
+ * @return Una Lista o Set de los Prestamos del cliente con el DNI
+ */
+    public Optional<Set<PrestamosDTO>> buscarPrestamoPorDni(String dni) {
+        try {
+            // Verificar si existe el cliente por DNI
+            if (!this.clienteRepositorio.existsById(dni)) {
+                return Optional.of(new HashSet<>());
             }
+    
+            // Obtener el cliente encontrado
+            Cliente clienteEncontrado = this.clienteRepositorio.findById(dni).orElseThrow();
+    
+            // Mapear los préstamos a PrestamosDTO si existen
+            if (clienteEncontrado.getPrestamos() != null) {
+                Set<PrestamosDTO> prestamosDTO = clienteEncontrado.getPrestamos()
+                        .stream()
+                        .map(prestamo -> {
+                            // Mapear Prestamo a PrestamosDTO
+                            PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+    
+                            // Mapear la lista de TablaAmortizacion a TablaAmortizacionDTO
+                            List<TablaAmortizacionDTO> tablaAmortizacionDTO = prestamo.getTablaAmortizacion()
+                                    .stream()
+                                    .map(amortizacion -> SingletonModelMapper.getModelMapperInstance().map(amortizacion, TablaAmortizacionDTO.class))
+                                    .collect(Collectors.toList());
+    
+                            // Establecer la lista mapeada en el DTO
+                            prestamoDTO.setTablaAmortizacionDTO(tablaAmortizacionDTO);
+    
+                            // Mapear Cliente a ClienteDTO
+                            ClienteDTO clienteDTO = SingletonModelMapper.getModelMapperInstance().map(clienteEncontrado, ClienteDTO.class);
+    
+                            // Mapear las direcciones a DireccionDTO
+                            List<DireccionesDTO> direccionesDTO = clienteEncontrado.getDirecciones()                                    
+                                    .stream()
+                                    .map(direccion -> SingletonModelMapper.getModelMapperInstance().map(direccion, DireccionesDTO.class))
+                                    .collect(Collectors.toList());
+    
+                            // Asignar direcciones al ClienteDTO
+                            clienteDTO.setDireccionesDTO(direccionesDTO);
+    
+                            // Crear un Set<ClienteDTO> y agregar el ClienteDTO
+                            Set<ClienteDTO> clientesDTOSet = new HashSet<>();
+                            clientesDTOSet.add(clienteDTO);
+    
+                            // Asignar clientes al DTO del préstamo
+                            prestamoDTO.setClientesDTO(clientesDTOSet);
+    
+                            return prestamoDTO; // Retornar el DTO completo
+                        })
+                        .collect(Collectors.toSet());
+    
+                return Optional.of(prestamosDTO); // Devolver los préstamos mapeados
+            }
+    
+            // Si no hay préstamos, devolver un conjunto vacío
+            return Optional.of(new HashSet<>());
+    
+        } catch (Exception e) {
+            // Manejar la excepción con un registro (opcional) o personalización
+            System.err.println("Error al buscar préstamos por DNI: " + e.getMessage());
+            return Optional.of(new HashSet<>());
         }
-        
-        // Retornar la lista de préstamos en formato DTO
-        return prestamosDTOList;
-
     }
 
+
+   
     /**
-     * 
+     * Obtiene el prestamo buscado por el id del Prestamo
      * @param idPrestamo
-     * @return
+     * @return Un objeto de tipo PrestamoDTO
      */
-    public PrestamosDTO buscarPrestamoPorId(int idPrestamo) {
-
-        // Verificar si el préstamo existe en la base de datos
-        if (!this.prestamosRepositorio.existsById(idPrestamo)) {
-            return null; // Retornar null si el préstamo no existe
+    public Optional<PrestamosDTO> buscarPrestamoPorId(int idPrestamo) {
+        try {
+            // Verificar si el préstamo existe
+            if (!this.prestamosRepositorio.existsById(idPrestamo)) {
+                return Optional.empty();
+            }
+    
+            // Obtener el objeto Prestamo desde el repositorio
+            Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).orElseThrow();
+    
+            // Mapear el objeto Prestamo a PrestamosDTO
+            PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
+    
+            // Mapear los clientes asociados al préstamo (si existen)
+            if (prestamo.getClientes() != null) {
+                Set<ClienteDTO> clientesDTO = prestamo.getClientes().stream()
+                        .map(cliente -> SingletonModelMapper.getModelMapperInstance().map(cliente, ClienteDTO.class))
+                        .collect(Collectors.toSet());
+                prestamoDTO.setClientesDTO(clientesDTO);
+            }
+    
+            // Mapear la tabla de amortización asociada al préstamo (si existe)
+            if (prestamo.getTablaAmortizacion() != null) {
+                List<TablaAmortizacionDTO> tablaAmortizacionDTO = prestamo.getTablaAmortizacion().stream()
+                        .map(amortizacion -> SingletonModelMapper.getModelMapperInstance().map(amortizacion, TablaAmortizacionDTO.class))
+                        .collect(Collectors.toList());
+                prestamoDTO.setTablaAmortizacionDTO(tablaAmortizacionDTO);
+            }
+    
+            // Retornar el DTO con todos los datos
+            return Optional.of(prestamoDTO);
+    
+        } catch (Exception e) {
+            System.err.println("Error al buscar el préstamo por ID: " + e.getMessage());
+            return Optional.empty();
         }
-    
-        // Obtener el préstamo desde el repositorio
-        Prestamos prestamo = this.prestamosRepositorio.findById(idPrestamo).get();
-    
-        // Mapear el préstamo a un DTO usando SingletonModelMapper
-        PrestamosDTO prestamoDTO = SingletonModelMapper.getModelMapperInstance().map(prestamo, PrestamosDTO.class);
-    
-        // Retornar el préstamo en formato DTO
-        return prestamoDTO;
-
     }
 
 
@@ -149,17 +215,22 @@ public class PrestamoServicio {
 
             // Crear la tabla de amortización para el préstamo
 
+            if ( prestamo.getClientes() == null){
+                prestamo.setClientes(new HashSet<>());
+            }
+
             prestamo.setTipoPrestamo(prestamoDTO.getTipoPrestamo());
             prestamo.getClientes().add(cliente);
+           
             this.prestamosRepositorio.save(prestamo);
     
             cliente.getPrestamos().add(prestamo);
             crearTablaAmortizacion(prestamo, prestamo.getCuota(), prestamo.getTasaInteres());
             this.clienteRepositorio.save(cliente);
     
-            return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
+            return "El cliente con DNI: " + cliente.getDni() + " ha sido asociado a un prestamo exitosamente!";
         } catch (Exception e) {
-            return "Ha ocurrido un error: " + e;
+            return "Ha ocurrido un error!\n " + e;
         }
        
     }
@@ -212,10 +283,11 @@ public class PrestamoServicio {
     
             return "El cliente con DNI: " + cliente.getDni() + " ha adquirido un prestamo exitosamente!";
         } catch (Exception e) {
-            return "Ha ocurrido un error: " + e;
+            return "Ha ocurrido un error: \n" + e;
         }
        
     }
+
 
      /**
      * Método que permite obtener la cuota del prestamo a pagar
@@ -465,7 +537,7 @@ public class PrestamoServicio {
                                numeroCuota, saldoPendiente);
 
         } catch (Exception e) {
-            return "No se logró completar la acción!" + e;
+            return "El id del prestamo del que desea pagar la cuota no es válido!\n" + e;
         }
         
     }
