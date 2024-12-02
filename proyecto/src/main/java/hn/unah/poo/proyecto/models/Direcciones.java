@@ -23,22 +23,38 @@ import lombok.Setter;
 @Entity
 @Table(name="direcciones")
 public class Direcciones {
-
+  /**
+ * Id de la tabla Direccion
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
      @Column(name="iddireccion")
     private int idDireccion;
 
+   /**
+ * Pais del cliente
+     */
     private String pais;
-    
+    /**
+     * Departamento del cliente
+     */
     private String departamento;
-
+    /**
+     * Ciudad del cliente
+     */
     private String ciudad;
-
+    /**
+ * Colonia del cliente
+     */
     private String colonia;
 
+    /**
+     * Referencia de donde vive el cliente
+     */
     private String referencia;
-
+  /**
+     * Objeto cliente que contiene la informacion del mismo en la Entidad Direccion.
+     */
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="dni",  referencedColumnName = "dni")
     @JsonIgnore
