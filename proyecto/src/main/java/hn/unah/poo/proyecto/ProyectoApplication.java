@@ -9,33 +9,24 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.servers.Server;
 
-@OpenAPIDefinition(
-    info = @Info(
-        title = "Microservicio Prestamo",
-        version = "1.0.0",
-        description = "API para gestionar préstamos",
-        license = @License(
-            name = "Apache 2.0",
-            url = "https://www.apache.org/licenses/LICENSE-2.0"
-        ),
-        contact = @Contact(
-            name = "Soporte de Microservicio",
-            email = "soporte@poo.hn",
-            url = "http://apirestdocumentation.hn"
-        )
-    ),
-    servers = {
-        @Server(description = "Ambiente Local", url = "http://localhost:8080/"),
-        @Server(description = "Ambiente Dev expuesto por Apigateway", url = "http://dev.api.poo.hn"),
-        @Server(description = "Ambiente QA expuesto por Apigateway", url = "http://qa.api.poo.hn"),
-        @Server(description = "Ambiente Prod expuesto por Apigateway", url = "http://api.poo.hn")
-    }
-)
+@OpenAPIDefinition(info = @Info(title = "Proyecto POO (Prestamo)", version = "1.0.0", description = """
+            API para gestionar préstamos.
+            Este proyecto fue desarrollado como parte de una colaboración grupal para
+            la asignatura de POO impartida por el ingeniero Harold Coello.
+
+            **Equipo de Desarrollo:**
+            - José Daniel Nuñez (20221001249)
+            - Eduardo Gabriel Martínez Zelaya (20121010326)
+            - Edgar David Vasquez Sanchez (20221004825)
+            - [Nombre del Integrante 4] ([Número de Cuenta])
+        """, license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0"), contact = @Contact(name = "Soporte del Microservicio", email = "emartinez@unah.hn", url = "http://api.whatsapp.com/send?phone=50431512355")), servers = {
+        @Server(description = "Ambiente Local", url = "http://localhost:8080/")
+})
 @SpringBootApplication
 public class ProyectoApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ProyectoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ProyectoApplication.class, args);
+    }
 
 }
