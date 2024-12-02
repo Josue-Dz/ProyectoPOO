@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
             - José Daniel Nuñez (20221001249)
             - Eduardo Gabriel Martínez Zelaya (20121010326)
             - Edgar David Vasquez Sanchez (20221004825)
-            - [Nombre del Integrante 4] ([Número de Cuenta])
+            - Ronny Josué Posadas Díaz (20161002484)
         """, license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0"), contact = @Contact(name = "Soporte del Microservicio", email = "emartinez@unah.hn", url = "http://api.whatsapp.com/send?phone=50431512355")), servers = {
         @Server(description = "Ambiente Local", url = "http://localhost:8080/")
 })
