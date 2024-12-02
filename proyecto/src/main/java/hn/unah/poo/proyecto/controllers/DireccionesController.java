@@ -1,5 +1,6 @@
 package hn.unah.poo.proyecto.controllers;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ public class DireccionesController {
     " Debe recibir un JSON de direccionesDTO")
     @PostMapping("/agregar/direccion/{dni}")
     public String agregarDireccionCliente(@PathVariable(name = "dni") String dni,
-    @RequestBody DireccionesDTO direccionDTO){   
+            @RequestBody DireccionesDTO direccionDTO) {
         return clienteServicio.agregarDireccion(dni, direccionDTO);
     }
 

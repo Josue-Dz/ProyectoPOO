@@ -16,23 +16,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PrestamosDTO {
-    
+   
     private int idPrestamo;
 
     private double monto;
-
+    
     private int plazo;
-
+    
     private double tasaInteres;
-
+   
     private double cuota;
-
+    
     private char estado;
-
+   
     private String tipoPrestamo;
-
+  
     private List<TablaAmortizacionDTO> tablaAmortizacionDTO;
-
+  
     private Set<ClienteDTO> clientesDTO;
 
 }

@@ -30,7 +30,7 @@ import lombok.Setter;
 @Entity
 @Table(name="prestamos")
 public class Prestamos {
-    
+   
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="idprestamo")
@@ -38,17 +38,17 @@ public class Prestamos {
 
     @Column(columnDefinition = "DECIMAL(14,2)")
     private double monto;
-
+   
     private int plazo;
-
+    
     @Column(columnDefinition = "DECIMAL(14,2)")
     private double tasaInteres;
-
+    
     @Column(columnDefinition = "DECIMAL(14,2)")
     private double cuota;
-
+   
     private char estado;
-
+    
     @Convert(converter = TipoPrestamoConverter.class)
     @Column(name = "tipo_prestamo")
     private TipoPrestamo tipoPrestamo;
