@@ -3,7 +3,6 @@ package hn.unah.poo.proyecto.models;
 import java.util.List;
 import java.util.Set;
 
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,29 +22,45 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="clientes")
+@Table(name = "clientes")
 public class Cliente {
-    
-@Id
-private String dni;
+    /**
+     * DNI del cliente
+     */
+    @Id
+    private String dni;
+    /**
+     * Nombre del Cliente
+     */
+    private String nombre;
+    /**
+     * Apellido del Cliente
+     */
+    private String apellido;
+    /**
+     * Telefono del cliente
+     */
+    private String telefono;
+    /**
+     * Correo del cliente
+     */
+    private String correo;
+    /**
+     * Sueldo del cliente
+     */
+    @Column(columnDefinition = "DECIMAL(14,2)")
+    private double sueldo;
 
-private String nombre;
+     /**
+ * Lista de Direcciones del cliente
+     */
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private List<Direcciones> direcciones;
+  /**
+     * Set de Prestamos del cliente
+     */
+    @ManyToMany
+    @JoinTable(name = "cliente_prestamos", joinColumns = @JoinColumn(name = "dni"), inverseJoinColumns = @JoinColumn(name = "idprestamo"))
+    private Set<Prestamos> prestamos;
 
-private String apellido;
-
-private String telefono;
-
-private String correo;
-
-@Column(columnDefinition = "DECIMAL(14,2)")
-private double sueldo;
-
-@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-private List<Direcciones> direcciones;
-
-@ManyToMany
-@JoinTable(name = "cliente_prestamos", 
-           joinColumns = @JoinColumn(name = "dni"),
-           inverseJoinColumns = @JoinColumn(name = "idprestamo"))
-private Set<Prestamos> prestamos;
 }
