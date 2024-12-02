@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "prestamo.tasa.personal",
+    "type": "java.lang.String",
+    "description": "Tasa de Interes para un prestamo personal"
+  },
+  {
+    "name": "prestamo.tasa.vehicular",
+    "type": "java.lang.String",
+    "description": "Tasa de Interes para un prestamo vehicular"
+  },
+  {
+    "name": "prestamo.tasa.hipotecario",
+    "type": "java.lang.String",
+    "description": "Tasa de Interes para un prestamo hipotecario"
+  }
+]}
