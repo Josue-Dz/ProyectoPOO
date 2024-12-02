@@ -1,7 +1,7 @@
 package hn.unah.poo.proyecto.enumeration;
 
 public enum TipoPrestamo {
-
+    
     V('V'), 
     P('P'), 
     H('H');

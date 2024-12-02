@@ -369,7 +369,7 @@ public class PrestamoServicio {
                 return tasaHipotecario;
             }
 
-            default -> throw new IllegalArgumentException("Tasa de interés no disponible para el tipo de préstamo " + tipoPrestamo);
+            default -> throw new IllegalArgumentException("Tasa de interés no disponible para el tipo de préstamo. " + tipoPrestamo);
         }
         
     }

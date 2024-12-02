@@ -61,9 +61,8 @@ public class ClienteServicio {
                 direccion.setCliente(nvoCliente);
                 this.direccionesRepositorio.save(direccion);
             }
-    
             
-            this.clienteRepositorio.save(nvoCliente);
+           this.clienteRepositorio.save(nvoCliente);
             return "El cliente " + nvoClienteDTO.getNombre() + " ha sido agregado exitosamente.";
         } catch (Exception e) {
             return "No ha sido posible completar la acción " + e;
