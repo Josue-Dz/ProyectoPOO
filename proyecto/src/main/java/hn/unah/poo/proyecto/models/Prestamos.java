@@ -30,25 +30,39 @@ import lombok.Setter;
 @Entity
 @Table(name="prestamos")
 public class Prestamos {
-    
+     /**
+     * Id del prestamo
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="idprestamo")
     private int idPrestamo;
-
+/**
+     * Monto del prestamo
+     */
     @Column(columnDefinition = "DECIMAL(14,2)")
     private double monto;
-
+    /**
+     * Plazo del prestamo
+     */
     private int plazo;
-
+    /**
+     * Tasa de Interes del prestamo
+     */
     @Column(columnDefinition = "DECIMAL(14,2)")
     private double tasaInteres;
-
+    /**
+     * Cuota del prestamo
+     */
     @Column(columnDefinition = "DECIMAL(14,2)")
     private double cuota;
-
+    /**
+     * Estado del prestamo
+     */
     private char estado;
-
+    /**
+     * Tipo de prestamo
+     */
     @Convert(converter = TipoPrestamoConverter.class)
     @Column(name = "tipo_prestamo")
     private TipoPrestamo tipoPrestamo;
