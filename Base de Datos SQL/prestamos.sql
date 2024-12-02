@@ -18,7 +18,7 @@ create table direcciones(
     colonia varchar(50),
     referencia varchar(100),
     dni varchar(18),
-    foreign key(dni) references cliente(dni)
+    foreign key(dni) references clientes(dni)
     );
     
 create table prestamos(
@@ -34,7 +34,7 @@ create table prestamos(
 create table cliente_prestamos(
 	dni varchar(18),
     idPrestamo int,
-    foreign key(dni) references cliente(dni),
+    foreign key(dni) references clientes(dni),
     foreign key(idPrestamo) references prestamos(idPrestamo)
 	);
     
