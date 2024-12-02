@@ -12,17 +12,31 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TablaAmortizacionDTO {
-
+ /**
+     * Id de la tabla Embebida; Creada para generar un primary key compuesto de
+     * (numerocuota y idPrestamo)
+     */
     private TablaAmortizacionId id;
-
+    /**
+     * Interes pagado por el clienteDTO en tablaAmortizacionDTO
+     */
     private double interes;
-
+    /**
+     * Capital pagado por el clienteDTO en tablaAmortizacionDTO
+     */
     private double capital;
-
+    /**
+     * Saldo a pagar por el clienteDTO en tablaAmortizacionDTO
+     */
     private double saldo;
-
+    /**
+     * Estado de la cuota en tablaAmortizacionDTO
+     */
     private char estado;
+    /**
+     * Fecha a vencer para pagar la cuota en tablaAmortizacionDTO
+     */
+    private LocalDate fechaVencimiento;
 
-    private  LocalDate fechaVencimiento;
 
 }
